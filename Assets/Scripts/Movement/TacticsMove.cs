@@ -27,11 +27,14 @@ public class TacticsMove : MonoBehaviour
     float halfHeight = 0;
     public int xPositionCurrent, yPositionCurrent;
 
+    private Cell originalCell;
+
     protected void Init()
     {
         cells = GameObject.FindGameObjectsWithTag("Cell");
         halfHeight = GetComponent<Collider>().bounds.extents.y;
         Cell startingPlace = Grid.gameBoard[xPositionCurrent][yPositionCurrent];
+        originalCell = startingPlace;
         transform.position = startingPlace.transform.position;
         transform.position = new Vector3(
             transform.position.x, 
@@ -61,8 +64,6 @@ public class TacticsMove : MonoBehaviour
         {
             Cell c = cell.GetComponent<Cell>();
             c.FindNeighbors(jumpHeight);
-           // Debug.Log("X " + c.adjacencyList[0].xCoordinate);
-           // Debug.Log(c.adjacencyList[0].yCoordinate);
         }
     }
 
@@ -97,7 +98,6 @@ public class TacticsMove : MonoBehaviour
                 }
             }
         }
-            
     }
 
     public void MoveToCell(Cell c)
@@ -174,5 +174,17 @@ public class TacticsMove : MonoBehaviour
     void SetHorizontalVelocity()
     {
         velocity = heading * moveSpeed;
+    }
+
+    public void ResetPosition()
+    {
+        transform.position = originalCell.transform.position;
+        transform.position = new Vector3(
+            transform.position.x,
+            transform.position.y + halfHeight + originalCell.GetComponent<Collider>().bounds.extents.y, //adding halfHeights of unit and cell
+            transform.position.z);
+
+        xPositionCurrent = originalCell.xCoordinate;
+        yPositionCurrent = originalCell.yCoordinate;
     }
 }

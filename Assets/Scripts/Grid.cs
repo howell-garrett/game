@@ -34,7 +34,6 @@ public class Grid : MonoBehaviour
             {
                 Cell c = new Cell(i, j);
                 row.Add(c);
-                //CreateCell(x, z);
             }
             gameBoard.Add(row);
         }

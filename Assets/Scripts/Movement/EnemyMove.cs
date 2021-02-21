@@ -52,7 +52,7 @@ public class EnemyMove : TacticsMove
                 if (hit.collider.tag == "Cell")
                 {
                     Cell c = hit.collider.GetComponent<Cell>();
-                    if (c.isSelectable)
+                    if (c.isSelectable && !c.isCurrent)
                     {
                         MoveToCell(c);
                     }

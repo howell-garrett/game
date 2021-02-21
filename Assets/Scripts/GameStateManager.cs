@@ -14,6 +14,10 @@ public class GameStateManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (Input.GetKeyDown(KeyCode.R))
+        {
+            ResetBoard();
+        }
         SelectUnit();
     }
 
@@ -62,27 +66,36 @@ public class GameStateManager : MonoBehaviour
             }
         }
     }
-    void SelectEnemy()
-    {
-        if (Input.GetMouseButtonUp(0))
-        {
-            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 
-            RaycastHit hit;
-            if (Physics.Raycast(ray, out hit))
+    void ResetBoard()
+    {
+        TurnManager.isPlayerTurn = true;
+        DeselectAllUnits();
+        for (int i = 0; i < Grid.gameBoard.Count; i++)
+        {
+            for (int j = 0; j < Grid.gameBoard[i].Count; j++)
             {
-                if (hit.collider.tag == "Enemy")
-                {
-                    DeselectAllUnits();
-                    EnemyMove player = hit.collider.GetComponent<EnemyMove>();
-                    if (!player.hasMoved)
-                    {
-                        player.isSelected = true;
-                        player.hasMoved = true;
-                    }
-                }
+                Grid.gameBoard[i][j].ResetVariables();
             }
         }
-    }
+        GameObject[] playerUnitsLocal = GameObject.FindGameObjectsWithTag("Player");
+        GameObject[] enemyUnitsLocal = GameObject.FindGameObjectsWithTag("Enemy");
+        for (int i = 0; i < enemyUnitsLocal.Length; i++)
+        {
+            enemyUnitsLocal[i].GetComponent<EnemyMove>().hasMoved = false;
+            enemyUnitsLocal[i].GetComponent<EnemyMove>().isSelected = false;
+            enemyUnitsLocal[i].GetComponent<EnemyMove>().isMoving = false;
+            enemyUnitsLocal[i].GetComponent<EnemyMove>().ResetPosition();
+
+        }
+        for (int i = 0; i < playerUnitsLocal.Length; i++)
+        {
+            playerUnitsLocal[i].GetComponent<PlayerMove>().hasMoved = false;
+            playerUnitsLocal[i].GetComponent<PlayerMove>().isSelected = false;
+            playerUnitsLocal[i].GetComponent<PlayerMove>().isMoving = false;
+            playerUnitsLocal[i].GetComponent<PlayerMove>().ResetPosition();
+        }
+
+}
 
 }
