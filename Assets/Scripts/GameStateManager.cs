@@ -79,22 +79,22 @@ public class GameStateManager : MonoBehaviour
                 Grid.gameBoard[i][j].ResetVariables();
             }
         }
-        GameObject[] playerUnitsLocal = GameObject.FindGameObjectsWithTag("Player");
-        GameObject[] enemyUnitsLocal = GameObject.FindGameObjectsWithTag("Enemy");
-        for (int i = 0; i < enemyUnitsLocal.Length; i++)
+        GameObject[] playerUnits = GameObject.FindGameObjectsWithTag("Player");
+        GameObject[] enemyUnits = GameObject.FindGameObjectsWithTag("Enemy");
+        for (int i = 0; i < enemyUnits.Length; i++)
         {
-            enemyUnitsLocal[i].GetComponent<EnemyMove>().hasMoved = false;
-            enemyUnitsLocal[i].GetComponent<EnemyMove>().isSelected = false;
-            enemyUnitsLocal[i].GetComponent<EnemyMove>().isMoving = false;
-            enemyUnitsLocal[i].GetComponent<EnemyMove>().ResetPosition();
+            enemyUnits[i].GetComponent<EnemyMove>().hasMoved = false;
+            enemyUnits[i].GetComponent<EnemyMove>().isSelected = false;
+            enemyUnits[i].GetComponent<EnemyMove>().isMoving = false;
+            enemyUnits[i].GetComponent<EnemyMove>().ResetPosition();
 
         }
-        for (int i = 0; i < playerUnitsLocal.Length; i++)
+        for (int i = 0; i < playerUnits.Length; i++)
         {
-            playerUnitsLocal[i].GetComponent<PlayerMove>().hasMoved = false;
-            playerUnitsLocal[i].GetComponent<PlayerMove>().isSelected = false;
-            playerUnitsLocal[i].GetComponent<PlayerMove>().isMoving = false;
-            playerUnitsLocal[i].GetComponent<PlayerMove>().ResetPosition();
+            playerUnits[i].GetComponent<PlayerMove>().hasMoved = false;
+            playerUnits[i].GetComponent<PlayerMove>().isSelected = false;
+            playerUnits[i].GetComponent<PlayerMove>().isMoving = false;
+            playerUnits[i].GetComponent<PlayerMove>().ResetPosition();
         }
 
 }
