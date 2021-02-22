@@ -19,7 +19,7 @@ public class PlayerMove : TacticsMove
 
         Debug.DrawRay(transform.position, transform.forward);
 
-        if (cells != null && !hasInitialized)
+        if (Grid.gameBoard != null && !hasInitialized)
         {
             Init();
             hasInitialized = true;
@@ -32,7 +32,7 @@ public class PlayerMove : TacticsMove
 
         if (isSelected)
         {
-            if (cells != null && !isMoving)
+            if (Grid.gameBoard != null && !isMoving)
             {
                 FindSelectableCells();
                 CheckMouse();

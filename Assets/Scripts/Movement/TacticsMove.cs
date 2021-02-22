@@ -15,11 +15,10 @@ public class TacticsMove : MonoBehaviour
 
     [Header("Positional Information")]
     public int xPositionCurrent;
+    public int zPositionCurrent;
     public int yPositionCurrent;
-    public int heightCurrent;
 
     [Header("Other")]
-    public GameObject[] cells;
     public bool hasMoved = false;
     public bool isMoving = false;
     public Cell currentCell;
@@ -32,10 +31,9 @@ public class TacticsMove : MonoBehaviour
 
     protected void Init()
     {
-        cells = GameObject.FindGameObjectsWithTag("Cell");
         halfHeight = GetComponent<Collider>().bounds.extents.y;
-        Cell startingPlace = Grid.gameBoard[xPositionCurrent][yPositionCurrent];
-        heightCurrent = Grid.gameBoard[xPositionCurrent][yPositionCurrent].height;
+        Cell startingPlace = Grid.gameBoard[xPositionCurrent][zPositionCurrent];
+        yPositionCurrent = Grid.gameBoard[xPositionCurrent][zPositionCurrent].yCoordinate;
         originalCell = startingPlace;
         transform.position = startingPlace.transform.position;
         transform.position = new Vector3(
@@ -46,7 +44,7 @@ public class TacticsMove : MonoBehaviour
 
     public void GetCurrentCell()
     {
-        currentCell = Grid.gameBoard[xPositionCurrent][yPositionCurrent];
+        currentCell = Grid.gameBoard[xPositionCurrent][zPositionCurrent];
         //currentCell =  GetTargetCell(gameObject);
         currentCell.setIsCurrent(true);
     }
@@ -146,7 +144,9 @@ public class TacticsMove : MonoBehaviour
             {
                 //reached goal
                 xPositionCurrent = path.Peek().xCoordinate;
-                yPositionCurrent = path.Peek().yCoordinate;
+                zPositionCurrent = path.Peek().zCoordinate;
+                    
+                    ;
                 lastInPath = path.Pop();
             }
         } else
@@ -194,6 +194,6 @@ public class TacticsMove : MonoBehaviour
             transform.position.z);
 
         xPositionCurrent = originalCell.xCoordinate;
-        yPositionCurrent = originalCell.yCoordinate;
+        zPositionCurrent = originalCell.zCoordinate;
     }
 }

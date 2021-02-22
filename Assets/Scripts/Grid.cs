@@ -58,17 +58,17 @@ public class Grid : MonoBehaviour
     {
         Vector3 position;
         position.x = cell.xCoordinate;
-        position.y = 0f + cell.height;
-        position.z = cell.yCoordinate; ;
+        position.y = 0f + cell.yCoordinate;
+        position.z = cell.zCoordinate; ;
 
         GameObject cellGameObject = Instantiate<GameObject>(cellPrefab);
 
         cellGameObject.GetComponent<Cell>().xCoordinate = cell.xCoordinate;
         cellGameObject.GetComponent<Cell>().yCoordinate = cell.yCoordinate; //y in 2d z in 3d
-        cellGameObject.GetComponent<Cell>().height = cell.height;
+        cellGameObject.GetComponent<Cell>().zCoordinate = cell.zCoordinate;
         cellGameObject.GetComponent<Cell>().isBlocked = cell.isBlocked;
 
-        gameBoard[cell.xCoordinate][cell.yCoordinate] = cellGameObject.GetComponent<Cell>();
+        gameBoard[cell.xCoordinate][cell.zCoordinate] = cellGameObject.GetComponent<Cell>();
         cellGameObject.transform.SetParent(transform, false);
         cellGameObject.transform.position = position;
 

@@ -5,37 +5,39 @@ using UnityEngine;
 public class Cell : MonoBehaviour
 {
 
-    public bool isWalkable = true; //movement is impossible, lava, deepwater etc NOT OCCUPIED
+    [Header("Coordinates")]
+    public int xCoordinate = 0;
+    public int zCoordinate = 0;
+    public int yCoordinate;
 
+    [Header("Cell Bools")]
+    public bool isWalkable = true; //movement is impossible, lava, deepwater etc NOT OCCUPIED
     public bool isCurrent;
     public bool isTarget;
     public bool isSelectable;
     public bool isOccupied;
-    public List<Cell> adjacencyList;
+    public bool isBlocked;
     //BFS vars
+    [Header("BFS Variables")]
+    public List<Cell> adjacencyList;
     public bool visited;
     public Cell parent;
     public int distance;
 
-    public int xCoordinate = 0;
-    public int yCoordinate = 0;
-    public int height;
-    public bool isBlocked;
-
-    public Cell(int x, int y)
+    public Cell(int x, int z)
     {
         xCoordinate = x;
-        yCoordinate = y;
+        zCoordinate = z;
         adjacencyList = new List<Cell>();
-        height = 1; //default
+        yCoordinate = 1; //default
         isBlocked = false;
     }
-    public Cell(int x, int y, int givenHeight)
+    public Cell(int x, int z, int y)
     {
         xCoordinate = x;
-        yCoordinate = y;
+        zCoordinate = z;
         adjacencyList = new List<Cell>();
-        height = givenHeight;
+        yCoordinate = y;
         isBlocked = false;
     }
 
@@ -75,29 +77,29 @@ public class Cell : MonoBehaviour
         ResetVariables();
         if (xCoordinate > 0) // left
         {
-            if (!Grid.gameBoard[xCoordinate - 1][yCoordinate].isBlocked) {
-                adjacencyList.Add(Grid.gameBoard[xCoordinate - 1][yCoordinate]);
+            if (!Grid.gameBoard[xCoordinate - 1][zCoordinate].isBlocked) {
+                adjacencyList.Add(Grid.gameBoard[xCoordinate - 1][zCoordinate]);
             }
         }
         if (xCoordinate < Grid.gameBoard.Count - 1) // Right
         {
-            if (!Grid.gameBoard[xCoordinate + 1][yCoordinate].isBlocked)
+            if (!Grid.gameBoard[xCoordinate + 1][zCoordinate].isBlocked)
             {
-                adjacencyList.Add(Grid.gameBoard[xCoordinate + 1][yCoordinate]);
+                adjacencyList.Add(Grid.gameBoard[xCoordinate + 1][zCoordinate]);
             }
         }
-        if (yCoordinate > 0) // Back
+        if (zCoordinate > 0) // Back
         {
-            if (!Grid.gameBoard[xCoordinate][yCoordinate - 1].isBlocked)
+            if (!Grid.gameBoard[xCoordinate][zCoordinate - 1].isBlocked)
             {
-                adjacencyList.Add(Grid.gameBoard[xCoordinate][yCoordinate - 1]);
+                adjacencyList.Add(Grid.gameBoard[xCoordinate][zCoordinate - 1]);
             }
         }
-        if (yCoordinate < Grid.gameBoard[xCoordinate].Count - 1) // Front
+        if (zCoordinate < Grid.gameBoard[xCoordinate].Count - 1) // Front
         {
-            if (!Grid.gameBoard[xCoordinate][yCoordinate + 1].isBlocked)
+            if (!Grid.gameBoard[xCoordinate][zCoordinate + 1].isBlocked)
             {
-                adjacencyList.Add(Grid.gameBoard[xCoordinate][yCoordinate + 1]);
+                adjacencyList.Add(Grid.gameBoard[xCoordinate][zCoordinate + 1]);
             }
         }
     }
@@ -146,7 +148,7 @@ public class Cell : MonoBehaviour
     }
 
     public override string ToString() {
-        return "X: " + xCoordinate.ToString() + " Y: " + yCoordinate.ToString();
+        return "X: " + xCoordinate.ToString() + " Y: " + zCoordinate.ToString();
     }
 
 }

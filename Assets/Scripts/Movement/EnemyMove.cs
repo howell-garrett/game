@@ -16,7 +16,7 @@ public class EnemyMove : TacticsMove
     void Update()
     {
 
-        if (cells != null && !hasInitialized)
+        if (Grid.gameBoard != null && !hasInitialized)
         {
             Init();
             hasInitialized = true;
@@ -28,7 +28,7 @@ public class EnemyMove : TacticsMove
 
         if (isSelected)
         {
-            if (cells != null && !isMoving)
+            if (Grid.gameBoard != null && !isMoving)
             {
                 FindSelectableCells();
                 CheckMouse();
