@@ -19,12 +19,24 @@ public class Cell : MonoBehaviour
 
     public int xCoordinate = 0;
     public int yCoordinate = 0;
+    public int height;
+    public bool isBlocked;
 
     public Cell(int x, int y)
     {
         xCoordinate = x;
         yCoordinate = y;
         adjacencyList = new List<Cell>();
+        height = 1; //default
+        isBlocked = false;
+    }
+    public Cell(int x, int y, int givenHeight)
+    {
+        xCoordinate = x;
+        yCoordinate = y;
+        adjacencyList = new List<Cell>();
+        height = givenHeight;
+        isBlocked = false;
     }
 
     public void setIsCurrent(bool b)
@@ -41,21 +53,7 @@ public class Cell : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (isCurrent)
-        {
-            GetComponent<Renderer>().material.color = Color.magenta;
-        }
-        else if (isTarget)
-        {
-            GetComponent<Renderer>().material.color = Color.green;
-        }
-        else if (isSelectable)
-        {
-            GetComponent<Renderer>().material.color = Color.red;
-        }
-        else {
-            GetComponent<Renderer>().material.color = Color.white;
-        }
+        UpdateCellColor();
     }
 
     public void ResetVariables()
@@ -75,28 +73,32 @@ public class Cell : MonoBehaviour
     public void FindNeighbors(float jumpHeight)
     {
         ResetVariables();
-        /*CheckCell(Vector3.forward, jumpHeight);
-        CheckCell(-Vector3.forward, jumpHeight);
-        CheckCell(Vector3.right, jumpHeight);
-        CheckCell(-Vector3.right, jumpHeight); */
-        //
-        //Debug.Log("X " + xCoordinate);
-        //Debug.Log("Y " + yCoordinate);
         if (xCoordinate > 0) // left
         {
-            adjacencyList.Add(Grid.gameBoard[xCoordinate - 1][yCoordinate]);
+            if (!Grid.gameBoard[xCoordinate - 1][yCoordinate].isBlocked) {
+                adjacencyList.Add(Grid.gameBoard[xCoordinate - 1][yCoordinate]);
+            }
         }
         if (xCoordinate < Grid.gameBoard.Count - 1) // Right
         {
-            adjacencyList.Add(Grid.gameBoard[xCoordinate + 1][yCoordinate]);
+            if (!Grid.gameBoard[xCoordinate + 1][yCoordinate].isBlocked)
+            {
+                adjacencyList.Add(Grid.gameBoard[xCoordinate + 1][yCoordinate]);
+            }
         }
         if (yCoordinate > 0) // Back
         {
-            adjacencyList.Add(Grid.gameBoard[xCoordinate][yCoordinate - 1]);
+            if (!Grid.gameBoard[xCoordinate][yCoordinate - 1].isBlocked)
+            {
+                adjacencyList.Add(Grid.gameBoard[xCoordinate][yCoordinate - 1]);
+            }
         }
         if (yCoordinate < Grid.gameBoard[xCoordinate].Count - 1) // Front
         {
-            adjacencyList.Add(Grid.gameBoard[xCoordinate][yCoordinate + 1]);
+            if (!Grid.gameBoard[xCoordinate][yCoordinate + 1].isBlocked)
+            {
+                adjacencyList.Add(Grid.gameBoard[xCoordinate][yCoordinate + 1]);
+            }
         }
     }
 
@@ -116,6 +118,30 @@ public class Cell : MonoBehaviour
                     adjacencyList.Add(cell);
                 }
             }
+        }
+    }
+
+    void UpdateCellColor()
+    {
+        if (isCurrent)
+        {
+            GetComponent<Renderer>().material.color = Color.magenta;
+        }
+        else if (isTarget)
+        {
+            GetComponent<Renderer>().material.color = Color.green;
+        }
+        else if (isSelectable)
+        {
+            GetComponent<Renderer>().material.color = Color.red;
+        }
+        else if (isBlocked)
+        {
+            GetComponent<Renderer>().material.color = Color.gray;
+        }
+        else
+        {
+            GetComponent<Renderer>().material.color = Color.white;
         }
     }
 

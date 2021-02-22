@@ -11,22 +11,23 @@ public class TacticsMove : MonoBehaviour
     public float jumpHeight = 2f;
     public float moveSpeed = 2f;
     public int moveDistance = 5;
+    public float jumpVelocity = 4.5f;
 
+    [Header("Positional Information")]
+    public int xPositionCurrent;
+    public int yPositionCurrent;
+    public int heightCurrent;
 
     [Header("Other")]
     public GameObject[] cells;
     public bool hasMoved = false;
     public bool isMoving = false;
-
-    Stack<Cell> path = new Stack<Cell>(); //for the path
     public Cell currentCell;
 
+    Stack<Cell> path = new Stack<Cell>(); //for the path
     Vector3 velocity = new Vector3();
     Vector3 heading = new Vector3();
-
     float halfHeight = 0;
-    public int xPositionCurrent, yPositionCurrent;
-
     private Cell originalCell;
 
     protected void Init()
@@ -34,6 +35,7 @@ public class TacticsMove : MonoBehaviour
         cells = GameObject.FindGameObjectsWithTag("Cell");
         halfHeight = GetComponent<Collider>().bounds.extents.y;
         Cell startingPlace = Grid.gameBoard[xPositionCurrent][yPositionCurrent];
+        heightCurrent = Grid.gameBoard[xPositionCurrent][yPositionCurrent].height;
         originalCell = startingPlace;
         transform.position = startingPlace.transform.position;
         transform.position = new Vector3(
@@ -60,10 +62,13 @@ public class TacticsMove : MonoBehaviour
 
     public void ComputeAdjList()
     {
-        foreach(GameObject cell in cells)
-        {
-            Cell c = cell.GetComponent<Cell>();
-            c.FindNeighbors(jumpHeight);
+        List<List<Cell>> board = Grid.gameBoard;
+        for (int i = 0; i < board.Count; i++) {
+            for (int j = 0; j < board[i].Count; j++)
+            {
+                Cell c = board[i][j].GetComponent<Cell>();
+                c.FindNeighbors(jumpHeight);
+            }
         }
     }
 
@@ -81,8 +86,11 @@ public class TacticsMove : MonoBehaviour
         while (process.Count > 0)
         {
             Cell c = process.Dequeue();
-            selectableCells.Add(c);
-            c.isSelectable = true;
+            if (!c.isBlocked)
+            {
+                c.isSelectable = true;
+                selectableCells.Add(c);
+            }
 
             if (c.distance < moveDistance)
             {
@@ -128,6 +136,7 @@ public class TacticsMove : MonoBehaviour
 
             if (Vector3.Distance(transform.position, target) >= 0.05f)
             {
+
                 CalculateHeading(target);
                 SetHorizontalVelocity();
 
