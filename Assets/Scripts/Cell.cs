@@ -9,6 +9,7 @@ public class Cell : MonoBehaviour
     public int xCoordinate = 0;
     public int zCoordinate = 0;
     public int yCoordinate;
+    public GameObject attachedUnit;
 
     [Header("Cell Bools")]
     public bool isWalkable = true; //movement is impossible, lava, deepwater etc NOT OCCUPIED

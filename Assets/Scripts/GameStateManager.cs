@@ -49,7 +49,7 @@ public class GameStateManager : MonoBehaviour
                 if (hit.collider.tag == "Player" && TurnManager.isPlayerTurn)
                 {
                     PlayerMove player = hit.collider.GetComponent<PlayerMove>();
-                    if (!player.hasMoved)
+                    if (player.actionPoints > 0)
                     {
                         DeselectAllUnits();
                         player.isSelected = true;
@@ -58,8 +58,9 @@ public class GameStateManager : MonoBehaviour
                 if (hit.collider.tag == "Enemy" && !TurnManager.isPlayerTurn)
                 {
                     EnemyMove player = hit.collider.GetComponent<EnemyMove>();
-                    if (!player.hasMoved)
+                    if (player.actionPoints > 0)
                     {
+                        Debug.Log("enemy select");
                         DeselectAllUnits();
                         player.isSelected = true;
                     }

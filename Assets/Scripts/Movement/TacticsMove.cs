@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class TacticsMove : MonoBehaviour
+public class TacticsMove : TacticsAttributes
 {
 
     List<Cell> selectableCells = new List<Cell>();
@@ -21,6 +21,7 @@ public class TacticsMove : MonoBehaviour
     [Header("Other")]
     public bool hasMoved = false;
     public bool isMoving = false;
+    public bool isSelected = false;
     public Cell currentCell;
 
     Stack<Cell> path = new Stack<Cell>(); //for the path
@@ -31,6 +32,8 @@ public class TacticsMove : MonoBehaviour
 
     protected void Init()
     {
+        Grid.gameBoard[xPositionCurrent][zPositionCurrent].attachedUnit = transform.gameObject;
+        actionPointsReset = actionPoints;
         halfHeight = GetComponent<Collider>().bounds.extents.y;
         Cell startingPlace = Grid.gameBoard[xPositionCurrent][zPositionCurrent];
         yPositionCurrent = Grid.gameBoard[xPositionCurrent][zPositionCurrent].yCoordinate;
@@ -79,7 +82,6 @@ public class TacticsMove : MonoBehaviour
 
         process.Enqueue(currentCell);
         currentCell.visited = true;
-        //currentCell.parent ignore
 
         while (process.Count > 0)
         {
@@ -127,6 +129,7 @@ public class TacticsMove : MonoBehaviour
         if (path.Count > 0)
         {
             Cell c = path.Peek();
+            c.attachedUnit = null;
             Vector3 target = c.transform.position;
 
             //unit's position on top of target tile
@@ -145,8 +148,6 @@ public class TacticsMove : MonoBehaviour
                 //reached goal
                 xPositionCurrent = path.Peek().xCoordinate;
                 zPositionCurrent = path.Peek().zCoordinate;
-                    
-                    ;
                 lastInPath = path.Pop();
             }
         } else
@@ -154,6 +155,8 @@ public class TacticsMove : MonoBehaviour
             RemoveSelectableCells();
             isMoving = false;
             hasMoved = true;
+            Grid.gameBoard[xPositionCurrent][zPositionCurrent].attachedUnit = transform.gameObject;
+            actionPoints--;
             GameStateManager.DeselectAllUnits();
             
         }
@@ -195,5 +198,11 @@ public class TacticsMove : MonoBehaviour
 
         xPositionCurrent = originalCell.xCoordinate;
         zPositionCurrent = originalCell.zCoordinate;
+    }
+    public void ResetAttributes()
+    {
+        hasMoved = false;
+        isSelected = false;
+        actionPoints = actionPointsReset;
     }
 }

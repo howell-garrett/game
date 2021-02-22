@@ -6,7 +6,6 @@ public class PlayerMove : TacticsMove
 {
 
     private bool hasInitialized = false;
-    public bool isSelected;
     // Start is called before the first frame update
     void Start()
     {

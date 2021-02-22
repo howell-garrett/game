@@ -5,7 +5,6 @@ using UnityEngine;
 public class EnemyMove : TacticsMove
 {
     private bool hasInitialized = false;
-    public bool isSelected;
     // Start is called before the first frame update
     void Start()
     {
