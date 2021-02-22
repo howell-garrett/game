@@ -5,6 +5,7 @@ public class Grid : MonoBehaviour
 {
 
     public GameObject cellPrefab;
+    public GameObject rockPrefab;
     public int gameBoardWidth, gameBoardHeight;
 
     public static List<List<Cell>> gameBoard;
@@ -32,7 +33,9 @@ public class Grid : MonoBehaviour
             List<Cell> row = new List<Cell>();
             for (int j = 0; j < gameBoardWidth; j++)
             {
-                Cell c = new Cell(i, j);
+                Cell c = new Cell(i, j, 1);
+                if (j == 7 && i <= 5) { c.isBlocked = true; } //temp to add height
+                if (j == 8 && i <= 5) { c.isBlocked = true; }
                 row.Add(c);
             }
             gameBoard.Add(row);
@@ -46,24 +49,28 @@ public class Grid : MonoBehaviour
         {
             for (int j = 0; j < gameBoard[i].Count; j++)
             {
-                CreateCell(i, j);
+                CreateCell(gameBoard[i][j]);
             }
         }
     }
 
-    void CreateCell(int x, int z)
+    void CreateCell(Cell cell)
     {
         Vector3 position;
-        position.x = x;
-        position.y = 0f;
-        position.z = z; ;
+        position.x = cell.xCoordinate;
+        position.y = 0f + cell.height;
+        position.z = cell.yCoordinate; ;
 
-        GameObject cell = Instantiate<GameObject>(cellPrefab);
-     
-        cell.GetComponent<Cell>().xCoordinate = x;
-        cell.GetComponent<Cell>().yCoordinate = z; //y in 2d z in 3d
-        gameBoard[x][z] = cell.GetComponent<Cell>();
-        cell.transform.SetParent(transform, false);
-        cell.transform.position = position;
+        GameObject cellGameObject = Instantiate<GameObject>(cellPrefab);
+
+        cellGameObject.GetComponent<Cell>().xCoordinate = cell.xCoordinate;
+        cellGameObject.GetComponent<Cell>().yCoordinate = cell.yCoordinate; //y in 2d z in 3d
+        cellGameObject.GetComponent<Cell>().height = cell.height;
+        cellGameObject.GetComponent<Cell>().isBlocked = cell.isBlocked;
+
+        gameBoard[cell.xCoordinate][cell.yCoordinate] = cellGameObject.GetComponent<Cell>();
+        cellGameObject.transform.SetParent(transform, false);
+        cellGameObject.transform.position = position;
+
     }
 }

@@ -5,6 +5,7 @@ using UnityEngine;
 public class GameStateManager : MonoBehaviour
 {
     public static bool isPlayerTurn = true;
+    public static float gravity = 9.8f;
     // Start is called before the first frame update
     void Start()
     {

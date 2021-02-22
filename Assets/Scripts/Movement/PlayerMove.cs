@@ -17,6 +17,8 @@ public class PlayerMove : TacticsMove
     void Update()
     {
 
+        Debug.DrawRay(transform.position, transform.forward);
+
         if (cells != null && !hasInitialized)
         {
             Init();
