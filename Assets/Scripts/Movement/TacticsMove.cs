@@ -13,27 +13,22 @@ public class TacticsMove : TacticsAttributes
     public int moveDistance = 5;
     public float jumpVelocity = 4.5f;
 
-    [Header("Positional Information")]
-    public int xPositionCurrent;
-    public int zPositionCurrent;
-    public int yPositionCurrent;
-
     [Header("Other")]
     public bool hasMoved = false;
     public bool isMoving = false;
     public bool isSelected = false;
-    public Cell currentCell;
 
     Stack<Cell> path = new Stack<Cell>(); //for the path
     Vector3 velocity = new Vector3();
     Vector3 heading = new Vector3();
-    float halfHeight = 0;
+    public float halfHeight = 0;
     private Cell originalCell;
 
     protected void Init()
     {
         Grid.gameBoard[xPositionCurrent][zPositionCurrent].attachedUnit = transform.gameObject;
         actionPointsReset = actionPoints;
+        healthReset = health;
         halfHeight = GetComponent<Collider>().bounds.extents.y;
         Cell startingPlace = Grid.gameBoard[xPositionCurrent][zPositionCurrent];
         yPositionCurrent = Grid.gameBoard[xPositionCurrent][zPositionCurrent].yCoordinate;
@@ -43,13 +38,6 @@ public class TacticsMove : TacticsAttributes
             transform.position.x, 
             transform.position.y + halfHeight + startingPlace.GetComponent<Collider>().bounds.extents.y, //adding halfHeights of unit and cell
             transform.position.z);
-    }
-
-    public void GetCurrentCell()
-    {
-        currentCell = Grid.gameBoard[xPositionCurrent][zPositionCurrent];
-        //currentCell =  GetTargetCell(gameObject);
-        currentCell.setIsCurrent(true);
     }
 
     public Cell GetTargetCell(GameObject target)
@@ -108,6 +96,16 @@ public class TacticsMove : TacticsAttributes
         }
     }
 
+    public void FindCellsInAttackRange() {
+        GetCurrentCell();
+        currentCell.FindNeighbors(jumpHeight);
+        List<Cell> l = currentCell.adjacencyList;
+        foreach (Cell c in l)
+        {
+            c.isInAttackRange = true;
+        }
+    }
+
     public void MoveToCell(Cell c)
     {
 
@@ -162,6 +160,13 @@ public class TacticsMove : TacticsAttributes
         }
     }
 
+    public void Attack(TacticsMove tm)
+    {
+        tm.health -= attackPower;
+        actionPoints--;
+        GameStateManager.DeselectAllUnits();
+    }
+
     protected void RemoveSelectableCells()
     {
         if (currentCell != null)
@@ -171,7 +176,7 @@ public class TacticsMove : TacticsAttributes
         }
         foreach(Cell cell in selectableCells)
         {
-            cell.ResetVariables();
+            cell.ResetBFSVariables();
         }
 
         selectableCells.Clear();

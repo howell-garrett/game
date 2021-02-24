@@ -22,7 +22,6 @@ public class TurnManager : MonoBehaviour
         {
             NewPlayerTurn();
         }
-        Debug.Log(isPlayerTurn);
         if (isPlayerTurn)
         {
             monitorTurnStatus("Player");
@@ -59,9 +58,7 @@ public class TurnManager : MonoBehaviour
             }
             if (allGone)
             {
-                Debug.Log(1234);
                 NewEnemyTurn();
-                Debug.Log(isPlayerTurn);
             }
         }
     }
@@ -69,6 +66,7 @@ public class TurnManager : MonoBehaviour
 
     public static void NewPlayerTurn()
     {
+       // GameStateManager.DeselectAllUnits();
         isPlayerTurn = true;
         //GameObject[] playerUnitss = GameObject.FindGameObjectsWithTag("Player");
         for (int i = 0; i < playerUnits.Length; i++)
@@ -78,6 +76,7 @@ public class TurnManager : MonoBehaviour
     }
     public static void NewEnemyTurn()
     {
+        //GameStateManager.DeselectAllUnits();
         isPlayerTurn = false;
         for (int i = 0; i < enemyUnits.Length; i++)
         {
