@@ -5,7 +5,6 @@ using UnityEngine;
 public class EnemyMove : TacticsMove
 {
     private bool hasInitialized = false;
-    public bool isSelected;
     // Start is called before the first frame update
     void Start()
     {
@@ -15,7 +14,10 @@ public class EnemyMove : TacticsMove
     // Update is called once per frame
     void Update()
     {
-
+        if (health <= 0)
+        {
+            gameObject.SetActive(false);
+        }
         if (Grid.gameBoard != null && !hasInitialized)
         {
             Init();

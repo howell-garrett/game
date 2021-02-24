@@ -22,7 +22,6 @@ public class TurnManager : MonoBehaviour
         {
             NewPlayerTurn();
         }
-
         if (isPlayerTurn)
         {
             monitorTurnStatus("Player");
@@ -39,7 +38,7 @@ public class TurnManager : MonoBehaviour
         {
             for (int i = 0; i < enemyUnits.Length; i++)
             {
-                if (!enemyUnits[i].GetComponent<EnemyMove>().hasMoved)
+                if (enemyUnits[i].GetComponent<EnemyMove>().actionPoints > 0)
                 {
                     allGone = false;
                 }
@@ -52,7 +51,7 @@ public class TurnManager : MonoBehaviour
         {
             for (int i = 0; i < playerUnits.Length; i++)
             {
-                if (!playerUnits[i].GetComponent<PlayerMove>().hasMoved)
+                if (playerUnits[i].GetComponent<PlayerMove>().actionPoints > 0)
                 {
                     allGone = false;
                 }
@@ -67,22 +66,21 @@ public class TurnManager : MonoBehaviour
 
     public static void NewPlayerTurn()
     {
+       // GameStateManager.DeselectAllUnits();
         isPlayerTurn = true;
-        GameObject[] playerUnitss = GameObject.FindGameObjectsWithTag("Player");
-        for (int i = 0; i < playerUnitss.Length; i++)
+        //GameObject[] playerUnitss = GameObject.FindGameObjectsWithTag("Player");
+        for (int i = 0; i < playerUnits.Length; i++)
         {
-            playerUnitss[i].GetComponent<PlayerMove>().hasMoved = false;
-            playerUnitss[i].GetComponent<PlayerMove>().isSelected = false;
+            playerUnits[i].GetComponent<PlayerMove>().ResetAttributes();
         }
     }
     public static void NewEnemyTurn()
     {
+        //GameStateManager.DeselectAllUnits();
         isPlayerTurn = false;
-        GameObject[] enemyUnitss = GameObject.FindGameObjectsWithTag("Enemy");
-        for (int i = 0; i < enemyUnitss.Length; i++)
+        for (int i = 0; i < enemyUnits.Length; i++)
         {
-            enemyUnitss[i].GetComponent<EnemyMove>().hasMoved = false;
-            enemyUnitss[i].GetComponent<EnemyMove>().isSelected = false;
+            enemyUnits[i].GetComponent<EnemyMove>().ResetAttributes();
         }
     }
 

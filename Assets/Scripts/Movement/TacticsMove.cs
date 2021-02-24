@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class TacticsMove : MonoBehaviour
+public class TacticsMove : TacticsAttributes
 {
 
     List<Cell> selectableCells = new List<Cell>();
@@ -13,24 +13,22 @@ public class TacticsMove : MonoBehaviour
     public int moveDistance = 5;
     public float jumpVelocity = 4.5f;
 
-    [Header("Positional Information")]
-    public int xPositionCurrent;
-    public int zPositionCurrent;
-    public int yPositionCurrent;
-
     [Header("Other")]
     public bool hasMoved = false;
     public bool isMoving = false;
-    public Cell currentCell;
+    public bool isSelected = false;
 
     Stack<Cell> path = new Stack<Cell>(); //for the path
     Vector3 velocity = new Vector3();
     Vector3 heading = new Vector3();
-    float halfHeight = 0;
+    public float halfHeight = 0;
     private Cell originalCell;
 
     protected void Init()
     {
+        Grid.gameBoard[xPositionCurrent][zPositionCurrent].attachedUnit = transform.gameObject;
+        actionPointsReset = actionPoints;
+        healthReset = health;
         halfHeight = GetComponent<Collider>().bounds.extents.y;
         Cell startingPlace = Grid.gameBoard[xPositionCurrent][zPositionCurrent];
         yPositionCurrent = Grid.gameBoard[xPositionCurrent][zPositionCurrent].yCoordinate;
@@ -40,13 +38,6 @@ public class TacticsMove : MonoBehaviour
             transform.position.x, 
             transform.position.y + halfHeight + startingPlace.GetComponent<Collider>().bounds.extents.y, //adding halfHeights of unit and cell
             transform.position.z);
-    }
-
-    public void GetCurrentCell()
-    {
-        currentCell = Grid.gameBoard[xPositionCurrent][zPositionCurrent];
-        //currentCell =  GetTargetCell(gameObject);
-        currentCell.setIsCurrent(true);
     }
 
     public Cell GetTargetCell(GameObject target)
@@ -79,7 +70,6 @@ public class TacticsMove : MonoBehaviour
 
         process.Enqueue(currentCell);
         currentCell.visited = true;
-        //currentCell.parent ignore
 
         while (process.Count > 0)
         {
@@ -106,6 +96,16 @@ public class TacticsMove : MonoBehaviour
         }
     }
 
+    public void FindCellsInAttackRange() {
+        GetCurrentCell();
+        currentCell.FindNeighbors(jumpHeight);
+        List<Cell> l = currentCell.adjacencyList;
+        foreach (Cell c in l)
+        {
+            c.isInAttackRange = true;
+        }
+    }
+
     public void MoveToCell(Cell c)
     {
 
@@ -127,6 +127,7 @@ public class TacticsMove : MonoBehaviour
         if (path.Count > 0)
         {
             Cell c = path.Peek();
+            c.attachedUnit = null;
             Vector3 target = c.transform.position;
 
             //unit's position on top of target tile
@@ -145,8 +146,6 @@ public class TacticsMove : MonoBehaviour
                 //reached goal
                 xPositionCurrent = path.Peek().xCoordinate;
                 zPositionCurrent = path.Peek().zCoordinate;
-                    
-                    ;
                 lastInPath = path.Pop();
             }
         } else
@@ -154,9 +153,18 @@ public class TacticsMove : MonoBehaviour
             RemoveSelectableCells();
             isMoving = false;
             hasMoved = true;
+            Grid.gameBoard[xPositionCurrent][zPositionCurrent].attachedUnit = transform.gameObject;
+            actionPoints--;
             GameStateManager.DeselectAllUnits();
             
         }
+    }
+
+    public void Attack(TacticsMove tm)
+    {
+        tm.health -= attackPower;
+        actionPoints--;
+        GameStateManager.DeselectAllUnits();
     }
 
     protected void RemoveSelectableCells()
@@ -168,7 +176,7 @@ public class TacticsMove : MonoBehaviour
         }
         foreach(Cell cell in selectableCells)
         {
-            cell.ResetVariables();
+            cell.ResetBFSVariables();
         }
 
         selectableCells.Clear();
@@ -195,5 +203,11 @@ public class TacticsMove : MonoBehaviour
 
         xPositionCurrent = originalCell.xCoordinate;
         zPositionCurrent = originalCell.zCoordinate;
+    }
+    public void ResetAttributes()
+    {
+        hasMoved = false;
+        isSelected = false;
+        actionPoints = actionPointsReset;
     }
 }

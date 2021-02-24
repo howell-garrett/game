@@ -4,13 +4,16 @@ using UnityEngine;
 
 public class PlayerMove : TacticsMove
 {
-
+    public GameObject selectedArrow;
     private bool hasInitialized = false;
-    public bool isSelected;
+
+    public bool movementSelected = false;
+    public bool attackingSelected = false;
     // Start is called before the first frame update
     void Start()
     {
-        
+        HideUI();
+        selectedArrow.SetActive(false);
     }
 
     // Update is called once per frame
@@ -27,20 +30,73 @@ public class PlayerMove : TacticsMove
 
         if (!TurnManager.isPlayerTurn)
         {
+            HideUI();
             return;
         }
 
         if (isSelected)
         {
-            if (Grid.gameBoard != null && !isMoving)
+            ShowUI();
+            if (movementSelected)
             {
-                FindSelectableCells();
-                CheckMouse();
+                showMovementInfo();
             }
-            else
+            if (attackingSelected)
             {
-                Move();
+                showAttackInfo();
             }
+            
+        } else
+        {
+            HideUI();
+        }
+    }
+
+    void ShowUI()
+    {
+        selectedArrow.SetActive(true);
+        transform.GetChild(0).GetComponent<Canvas>().enabled = true;
+    }
+
+    void HideUI()
+    {
+        selectedArrow.SetActive(false);
+        transform.GetChild(0).GetComponent<Canvas>().enabled = false;
+    }
+
+    void showMovementInfo()
+    {
+        
+        if (Grid.gameBoard != null && !isMoving)
+        {
+            FindSelectableCells();
+            CheckMouse();
+        }
+        else
+        {
+            Move();
+        }
+    }
+
+    public void selectMovement() {
+        attackingSelected = false;
+        movementSelected = true;
+    }
+
+    public void selectAttack()
+    {
+        attackingSelected = true;
+        movementSelected = false;
+        GameStateManager.DeselectAllCells();
+    }
+
+    void showAttackInfo()
+    {
+        GameStateManager.DeselectAllCells();
+        if (Grid.gameBoard != null && !isMoving)
+        {
+            FindCellsInAttackRange();
+            CheckMouse();
         }
     }
 
@@ -58,6 +114,10 @@ public class PlayerMove : TacticsMove
                     if (c.isSelectable && !c.isCurrent)
                     {
                         MoveToCell(c);
+                    }
+                    if (c.isInAttackRange)
+                    {
+                        Attack(c.attachedUnit.GetComponent<EnemyMove>());
                     }
                 }
             }

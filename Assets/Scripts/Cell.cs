@@ -9,6 +9,7 @@ public class Cell : MonoBehaviour
     public int xCoordinate = 0;
     public int zCoordinate = 0;
     public int yCoordinate;
+    public GameObject attachedUnit;
 
     [Header("Cell Bools")]
     public bool isWalkable = true; //movement is impossible, lava, deepwater etc NOT OCCUPIED
@@ -17,6 +18,7 @@ public class Cell : MonoBehaviour
     public bool isSelectable;
     public bool isOccupied;
     public bool isBlocked;
+    public bool isInAttackRange;
     //BFS vars
     [Header("BFS Variables")]
     public List<Cell> adjacencyList;
@@ -49,7 +51,7 @@ public class Cell : MonoBehaviour
     // Start is called before the first frame update
     private void Start()
     {
-        ResetVariables();
+        ResetBFSVariables();
     }
 
     // Update is called once per frame
@@ -58,7 +60,7 @@ public class Cell : MonoBehaviour
         UpdateCellColor();
     }
 
-    public void ResetVariables()
+    public void ResetBFSVariables()
     {
 
         isCurrent = false;
@@ -70,11 +72,12 @@ public class Cell : MonoBehaviour
         visited = false;
         parent = null;
         distance = 0;
+        isInAttackRange = false;
     }
 
     public void FindNeighbors(float jumpHeight)
     {
-        ResetVariables();
+        ResetBFSVariables();
         if (xCoordinate > 0) // left
         {
             if (!Grid.gameBoard[xCoordinate - 1][zCoordinate].isBlocked) {
@@ -140,6 +143,17 @@ public class Cell : MonoBehaviour
         else if (isBlocked)
         {
             GetComponent<Renderer>().material.color = Color.gray;
+        }
+        else if(isInAttackRange)
+        {
+            if (attachedUnit)
+            {
+                GetComponent<Renderer>().material.color = Color.yellow;
+            } else
+            {
+                isInAttackRange = false;
+                GetComponent<Renderer>().material.color = Color.white;
+            }
         }
         else
         {
