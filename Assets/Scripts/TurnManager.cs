@@ -72,6 +72,7 @@ public class TurnManager : MonoBehaviour
         for (int i = 0; i < playerUnits.Length; i++)
         {
             playerUnits[i].GetComponent<PlayerMove>().ResetAttributes();
+            playerUnits[i].GetComponent<PlayerMove>().Deselect();
         }
     }
     public static void NewEnemyTurn()

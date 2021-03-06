@@ -5,6 +5,7 @@ public class Grid : MonoBehaviour
 {
 
     public GameObject cellPrefab;
+    public GameObject blockedPrefab;
     public GameObject rockPrefab;
     public int gameBoardWidth, gameBoardHeight;
 
@@ -15,13 +16,13 @@ public class Grid : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        
+
     }
 
     // Update is called once per frame
     void Update()
     {
-        
+
     }
 
     void Awake()
@@ -34,8 +35,8 @@ public class Grid : MonoBehaviour
             for (int j = 0; j < gameBoardWidth; j++)
             {
                 Cell c = new Cell(i, j, 1);
-                if (j == 7 && i <= 5) { c.isBlocked = true; } //temp to add height
-                if (j == 8 && i <= 5) { c.isBlocked = true; }
+                if (j == 7) { c.isBlocked = true; } //temp to add height
+                //if (j == 8 && i <= 5) { c.isBlocked = true; }
                 row.Add(c);
             }
             gameBoard.Add(row);
@@ -49,22 +50,40 @@ public class Grid : MonoBehaviour
         {
             for (int j = 0; j < gameBoard[i].Count; j++)
             {
-                CreateCell(gameBoard[i][j]);
+                bool isOdd = false;
+                if (j % 2 != 0)
+                {
+                    isOdd = true;
+                }
+                CreateCell(gameBoard[i][j], isOdd);
             }
         }
     }
 
-    void CreateCell(Cell cell)
+    void CreateCell(Cell cell, bool isOdd)
     {
         Vector3 position;
-        position.x = cell.xCoordinate;
+        position.x = cell.xCoordinate * 1.05f;
         position.y = 0f + cell.yCoordinate;
-        position.z = cell.zCoordinate; ;
+        position.z = cell.zCoordinate * 0.9f;
 
-        GameObject cellGameObject = Instantiate<GameObject>(cellPrefab);
+        if (isOdd)
+        {
+            position.x += 0.512f;
+        }
+        GameObject cellGameObject = new GameObject();
+        if (cell.isBlocked)
+        {
+            cellGameObject = Instantiate<GameObject>(blockedPrefab);
+        } else
+        {
+            cellGameObject = Instantiate<GameObject>(cellPrefab);
+        }
+        
+        cellGameObject.name = cell.xCoordinate + "," + cell.zCoordinate;
 
         cellGameObject.GetComponent<Cell>().xCoordinate = cell.xCoordinate;
-        cellGameObject.GetComponent<Cell>().yCoordinate = cell.yCoordinate; //y in 2d z in 3d
+        cellGameObject.GetComponent<Cell>().yCoordinate = cell.yCoordinate;
         cellGameObject.GetComponent<Cell>().zCoordinate = cell.zCoordinate;
         cellGameObject.GetComponent<Cell>().isBlocked = cell.isBlocked;
 

@@ -78,31 +78,36 @@ public class Cell : MonoBehaviour
     public void FindNeighbors(float jumpHeight)
     {
         ResetBFSVariables();
-        if (xCoordinate > 0) // left
+
+        List<GameObject> temp = new List<GameObject>();
+        temp.Add(GameObject.Find(xCoordinate - 1 + "," + zCoordinate)); //left
+        temp.Add(GameObject.Find(xCoordinate + 1 + "," + zCoordinate)); //right
+
+        if ((xCoordinate % 2 == 0 && zCoordinate % 2 == 0) ||
+            (xCoordinate % 2 == 1 && zCoordinate % 2 == 0)) //double even or odd,even
         {
-            if (!Grid.gameBoard[xCoordinate - 1][zCoordinate].isBlocked) {
-                adjacencyList.Add(Grid.gameBoard[xCoordinate - 1][zCoordinate]);
-            }
+            temp.Add(GameObject.Find(xCoordinate + "," + (zCoordinate + 1))); //top right
+            temp.Add(GameObject.Find(xCoordinate - 1 + "," + (zCoordinate + 1))); //top left
+            temp.Add(GameObject.Find(xCoordinate + "," + (zCoordinate - 1))); //bottom right
+            temp.Add(GameObject.Find(xCoordinate - 1 + "," + (zCoordinate - 1))); //bottom left
+
+        } else if ((xCoordinate % 2 == 1 && zCoordinate % 2 == 1) || 
+            (xCoordinate % 2 == 0 && zCoordinate % 2 == 1)) //double odd or even,odd
+        {
+            temp.Add(GameObject.Find(xCoordinate + 1 + "," + (zCoordinate + 1))); //top right
+            temp.Add(GameObject.Find(xCoordinate + "," + (zCoordinate + 1))); //top left
+            temp.Add(GameObject.Find(xCoordinate + 1 + "," + (zCoordinate - 1))); //bottom right
+            temp.Add(GameObject.Find(xCoordinate + "," + (zCoordinate - 1))); //bottom left
         }
-        if (xCoordinate < Grid.gameBoard.Count - 1) // Right
+        for (int i = 0; i < temp.Count; i++)
         {
-            if (!Grid.gameBoard[xCoordinate + 1][zCoordinate].isBlocked)
+
+            if (temp[i] != null)
             {
-                adjacencyList.Add(Grid.gameBoard[xCoordinate + 1][zCoordinate]);
-            }
-        }
-        if (zCoordinate > 0) // Back
-        {
-            if (!Grid.gameBoard[xCoordinate][zCoordinate - 1].isBlocked)
-            {
-                adjacencyList.Add(Grid.gameBoard[xCoordinate][zCoordinate - 1]);
-            }
-        }
-        if (zCoordinate < Grid.gameBoard[xCoordinate].Count - 1) // Front
-        {
-            if (!Grid.gameBoard[xCoordinate][zCoordinate + 1].isBlocked)
-            {
-                adjacencyList.Add(Grid.gameBoard[xCoordinate][zCoordinate + 1]);
+                if (xCoordinate== 1 && zCoordinate == 0 )
+                {
+                }
+                adjacencyList.Add(temp[i].GetComponent<Cell>());
             }
         }
     }
@@ -146,7 +151,7 @@ public class Cell : MonoBehaviour
         }
         else if(isInAttackRange)
         {
-            if (attachedUnit)
+            if (attachedUnit || true)
             {
                 GetComponent<Renderer>().material.color = Color.yellow;
             } else

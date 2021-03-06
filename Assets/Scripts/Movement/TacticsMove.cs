@@ -24,6 +24,14 @@ public class TacticsMove : TacticsAttributes
     public float halfHeight = 0;
     private Cell originalCell;
 
+    public Cell teamBounceCell;
+    public Cell finalDestination; //nice
+
+    float bounceTimeCounter = 0;
+    public float bounceTime = 2;
+
+    public float bounceHeight = 1;
+
     protected void Init()
     {
         Grid.gameBoard[xPositionCurrent][zPositionCurrent].attachedUnit = transform.gameObject;
@@ -61,35 +69,89 @@ public class TacticsMove : TacticsAttributes
         }
     }
 
-    public void FindSelectableCells()
+    public void FindSelectableCells(Cell cellParam)
     {
-        ComputeAdjList();
-        GetCurrentCell();
-
         Queue<Cell> process = new Queue<Cell>();
+        if (teamBounceCell == null)
+        {
+            Debug.Log("COMPUTE");
+            ComputeAdjList();
+            GetCurrentCell();
+        }
 
-        process.Enqueue(currentCell);
-        currentCell.visited = true;
+        if (teamBounceCell != null)
+        {
+            process.Enqueue(teamBounceCell);
+            teamBounceCell.visited = true;
+        }
+        else
+        {
+            process.Enqueue(cellParam);
+            if (cellParam)
+            {
+                cellParam.visited = true;
+            }
+        }
+        
 
         while (process.Count > 0)
         {
             Cell c = process.Dequeue();
-            if (!c.isBlocked)
+            if (c && !c.isBlocked)
             {
-                c.isSelectable = true;
-                selectableCells.Add(c);
+                if (c.attachedUnit)
+                {
+                    if (c.attachedUnit.tag == tag)
+                    {
+                        c.isSelectable = true;
+                        selectableCells.Add(c);
+                    }
+                } else
+                {
+                    c.isSelectable = true;
+                    selectableCells.Add(c);
+                }
             }
-
+            //Debug.Log(c);
             if (c.distance < moveDistance)
             {
+               
                 foreach (Cell cell in c.adjacencyList)
                 {
+                    
                     if (!cell.visited)
                     {
-                        cell.parent = c;
-                        cell.visited = true;
-                        cell.distance = 1 + c.distance;
-                        process.Enqueue(cell);
+                        if (cell.attachedUnit != null)
+                        {
+                            if (cell.attachedUnit.tag == tag)
+                            {
+                                if (teamBounceCell == null)
+                                {
+                                    cell.parent = c;
+                                }
+                                cell.visited = true;
+                                cell.distance = 1 + c.distance;
+                                process.Enqueue(cell);
+                            }
+                            cell.visited = true;
+                            cell.distance = 1 + c.distance;
+                        }
+                        else if (!cell.isBlocked)
+                        {
+                            if (teamBounceCell == null)
+                            {
+                                cell.parent = c;
+                            }
+                            cell.visited = true;
+                            cell.distance = 1 + c.distance;
+                            process.Enqueue(cell);
+                        }
+                        else if (cell.isBlocked && teamBounceCell != null)
+                        {
+                            cell.visited = true;
+                            cell.distance = 1 + c.distance;
+                            process.Enqueue(cell);
+                        }
                     }
                 }
             }
@@ -110,11 +172,13 @@ public class TacticsMove : TacticsAttributes
     {
 
         path.Clear();
-
+        GetCurrentCell();
+        currentCell.attachedUnit = null;
         Cell next = c;
         while (next != null)
         {
             path.Push(next);
+            Debug.Log(next);
             next = next.parent;
         }
         c.isTarget = true;
@@ -127,9 +191,8 @@ public class TacticsMove : TacticsAttributes
         if (path.Count > 0)
         {
             Cell c = path.Peek();
-            c.attachedUnit = null;
+            //c.attachedUnit = null;
             Vector3 target = c.transform.position;
-
             //unit's position on top of target tile
             target.y += halfHeight + c.GetComponent<Collider>().bounds.extents.y;
 
@@ -148,16 +211,52 @@ public class TacticsMove : TacticsAttributes
                 zPositionCurrent = path.Peek().zCoordinate;
                 lastInPath = path.Pop();
             }
-        } else
+        }
+        else 
         {
-            RemoveSelectableCells();
-            isMoving = false;
-            hasMoved = true;
-            Grid.gameBoard[xPositionCurrent][zPositionCurrent].attachedUnit = transform.gameObject;
-            actionPoints--;
-            GameStateManager.DeselectAllUnits();
+            Vector3 target = finalDestination.transform.position;
+            target.y += halfHeight + finalDestination.GetComponent<Collider>().bounds.extents.y;
+            if (Vector3.Distance(transform.position, target) >= 0.05f)
+            {
+                Bounce();
+                /*
+                CalculateHeading(target);
+                SetHorizontalVelocity();
+
+                transform.forward = heading;
+                transform.position += velocity * Time.deltaTime; */
+            } else
+            {
+                RemoveSelectableCells();
+                if (teamBounceCell != null)
+                {
+                    Grid.gameBoard[finalDestination.xCoordinate][finalDestination.zCoordinate]
+                        .attachedUnit = transform.gameObject;
+                    xPositionCurrent = finalDestination.xCoordinate;
+                    zPositionCurrent = finalDestination.zCoordinate;
+                    //teamBounceCell.attachedUnit = transform.gameObject;
+                } else
+                {
+                    Grid.gameBoard[xPositionCurrent][zPositionCurrent].attachedUnit = transform.gameObject;
+                }
+                bounceTimeCounter = 0;
+                teamBounceCell = null;
+                finalDestination = null;
+                isMoving = false;
+                hasMoved = true;
+                actionPoints--;
+                GameStateManager.DeselectAllUnits();
+            }
             
         }
+    }
+    void Bounce()
+    {
+        bounceTimeCounter += Time.deltaTime;
+
+        bounceTimeCounter = bounceTimeCounter % bounceTime;
+        transform.position = MathParabola.Parabola(
+            transform.position, finalDestination.transform.position, bounceHeight, bounceTimeCounter / bounceTime);
     }
 
     public void Attack(TacticsMove tm)

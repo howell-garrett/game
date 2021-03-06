@@ -9,6 +9,8 @@ public class PlayerMove : TacticsMove
 
     public bool movementSelected = false;
     public bool attackingSelected = false;
+
+    public bool checkedSelectableCells = false;
     // Start is called before the first frame update
     void Start()
     {
@@ -69,8 +71,12 @@ public class PlayerMove : TacticsMove
         
         if (Grid.gameBoard != null && !isMoving)
         {
-            FindSelectableCells();
             CheckMouse();
+            if (!checkedSelectableCells)
+            {
+                FindSelectableCells(currentCell);
+                checkedSelectableCells = true;
+            }
         }
         else
         {
@@ -100,6 +106,23 @@ public class PlayerMove : TacticsMove
         }
     }
 
+    public void Deselect()
+    {
+        isSelected = false;
+        movementSelected = false;
+        attackingSelected = false;
+        checkedSelectableCells = false;
+        teamBounceCell = null;
+        finalDestination = null;
+    }
+
+    void ShowSelectableTeamBounceCells(Cell c)
+    {
+        teamBounceCell = c;
+        Debug.Log(c);
+        GameStateManager.asdf();
+        FindSelectableCells(c);
+    }
     void CheckMouse()
     {
         if (Input.GetMouseButtonUp(0))
@@ -113,9 +136,29 @@ public class PlayerMove : TacticsMove
                     Cell c = hit.collider.GetComponent<Cell>();
                     if (c.isSelectable && !c.isCurrent)
                     {
-                        MoveToCell(c);
+                        finalDestination = c;
+                        if (c.attachedUnit != null)
+                        {
+                            if (c.attachedUnit.tag != tag)
+                            {
+
+                                MoveToCell(c);
+                            }
+                            else
+                            {
+                                teamBounceCell = c;
+                                ShowSelectableTeamBounceCells(c);
+                            }
+                        }
+                        else if (teamBounceCell != null)
+                        {
+                            MoveToCell(teamBounceCell);
+                        }
+                        else {
+                            MoveToCell(c);
+                        }
                     }
-                    if (c.isInAttackRange)
+                    else if (c.isInAttackRange)
                     {
                         Attack(c.attachedUnit.GetComponent<EnemyMove>());
                     }

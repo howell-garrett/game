@@ -32,7 +32,7 @@ public class EnemyMove : TacticsMove
         {
             if (Grid.gameBoard != null && !isMoving)
             {
-                FindSelectableCells();
+                FindSelectableCells(currentCell);
                 CheckMouse();
             }
             else
@@ -56,6 +56,7 @@ public class EnemyMove : TacticsMove
                     Cell c = hit.collider.GetComponent<Cell>();
                     if (c.isSelectable && !c.isCurrent)
                     {
+                        finalDestination = c;
                         MoveToCell(c);
                     }
                 }
