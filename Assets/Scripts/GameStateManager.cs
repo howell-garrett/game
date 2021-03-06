@@ -40,15 +40,25 @@ public class GameStateManager : MonoBehaviour
             }
         }
     }
+    public static void asdf()
+    {
+        foreach (List<Cell> list in Grid.gameBoard)
+        {
+            foreach (Cell c in list)
+            {
+                c.isSelectable = false;
+                c.visited = false;
+                c.distance = 0;
+            }
+        }
+    }
 
     public static void DeselectAllUnits()
     {
         GameObject[] playerUnits = GameObject.FindGameObjectsWithTag("Player");
         for (int i = 0; i < playerUnits.Length; i++)
         {
-            playerUnits[i].GetComponent<PlayerMove>().isSelected = false;
-            playerUnits[i].GetComponent<PlayerMove>().movementSelected = false;
-            playerUnits[i].GetComponent<PlayerMove>().attackingSelected = false;
+            playerUnits[i].GetComponent<PlayerMove>().Deselect();
         }
 
         GameObject[] enemyUnits = GameObject.FindGameObjectsWithTag("Enemy");
@@ -88,8 +98,10 @@ public class GameStateManager : MonoBehaviour
                 }
                 else if (hit.collider.tag == "Cell" )
                 {
+                    
                     if (!hit.collider.gameObject.GetComponent<Cell>().isSelectable)
                     {
+                        //asdf();
                         DeselectAllUnits();
                     }
                 }
