@@ -71,15 +71,15 @@ public class Grid : MonoBehaviour
         {
             position.x += 0.512f;
         }
-        GameObject cellGameObject = new GameObject();
-        if (cell.isBlocked)
+        GameObject cellGameObject = Instantiate<GameObject>(cellPrefab);
+       /* if (cell.isBlocked)
         {
             cellGameObject = Instantiate<GameObject>(blockedPrefab);
         } else
         {
             cellGameObject = Instantiate<GameObject>(cellPrefab);
         }
-        
+        */
         cellGameObject.name = cell.xCoordinate + "," + cell.zCoordinate;
 
         cellGameObject.GetComponent<Cell>().xCoordinate = cell.xCoordinate;

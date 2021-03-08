@@ -38,7 +38,7 @@ public class TurnManager : MonoBehaviour
         {
             for (int i = 0; i < enemyUnits.Length; i++)
             {
-                if (enemyUnits[i].GetComponent<EnemyMove>().actionPoints > 0)
+                if (enemyUnits[i].GetComponent<TacticsAttributes>().actionPoints > 0)
                 {
                     allGone = false;
                 }
@@ -51,7 +51,7 @@ public class TurnManager : MonoBehaviour
         {
             for (int i = 0; i < playerUnits.Length; i++)
             {
-                if (playerUnits[i].GetComponent<PlayerMove>().actionPoints > 0)
+                if (playerUnits[i].GetComponent<TacticsAttributes>().actionPoints > 0)
                 {
                     allGone = false;
                 }

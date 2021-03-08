@@ -1,20 +1,23 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using HighlightingSystem;
 
 public class EnemyMove : TacticsMove
 {
     private bool hasInitialized = false;
+
+    public bool checkedSelectableCells = false;
     // Start is called before the first frame update
     void Start()
     {
-
+        attributes = GetComponent<TacticsAttributes>();
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (health <= 0)
+        if (attributes.health <= 0)
         {
             gameObject.SetActive(false);
         }
@@ -27,19 +30,18 @@ public class EnemyMove : TacticsMove
         {
             return;
         }
+    }
 
-        if (isSelected)
-        {
-            if (Grid.gameBoard != null && !isMoving)
-            {
-                FindSelectableCells(currentCell);
-                CheckMouse();
-            }
-            else
-            {
-                Move();
-            }
-        }
+    public void Deselect()
+    {
+        attributes.isSelected = false;
+        attributes.movementSelected = false;
+        attributes.attackingSelected = false;
+        checkedSelectableCells = false;
+        teamBounceCell = null;
+        finalDestination = null;
+        GetComponent<Highlighter>().constant = false;
+
     }
 
     void CheckMouse()

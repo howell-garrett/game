@@ -1,11 +1,13 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using HighlightingSystem;
 
 public class GameStateManager : MonoBehaviour
 {
     public static bool isPlayerTurn = true;
     public static float gravity = 9.8f;
+    public static bool isAnyoneMoving = false;
     public GameObject[] players;
     public GameObject[] enemies;
     // Start is called before the first frame update
@@ -26,7 +28,10 @@ public class GameStateManager : MonoBehaviour
         {
             DeselectAllUnits();
         }
-        SelectUnit();
+        if (!isAnyoneMoving)
+        {
+            SelectUnit();
+        }
 
     }
 
@@ -40,7 +45,7 @@ public class GameStateManager : MonoBehaviour
             }
         }
     }
-    public static void asdf()
+    public static void ResetCellInfoWithoutParent()
     {
         foreach (List<Cell> list in Grid.gameBoard)
         {
@@ -59,12 +64,14 @@ public class GameStateManager : MonoBehaviour
         for (int i = 0; i < playerUnits.Length; i++)
         {
             playerUnits[i].GetComponent<PlayerMove>().Deselect();
+            
         }
 
         GameObject[] enemyUnits = GameObject.FindGameObjectsWithTag("Enemy");
         for (int i = 0; i < enemyUnits.Length; i++)
         {
-            enemyUnits[i].GetComponent<EnemyMove>().isSelected = false;
+            enemyUnits[i].GetComponent<TacticsAttributes>().isSelected = false;
+            enemyUnits[i].GetComponent<Highlighter>().constant = false;
         }
         DeselectAllCells();
     }
@@ -80,8 +87,8 @@ public class GameStateManager : MonoBehaviour
             {
                 if (hit.collider.tag == "Player" && TurnManager.isPlayerTurn)
                 {
-                    PlayerMove player = hit.collider.GetComponent<PlayerMove>();
-                    if (player.actionPoints > 0)
+                    TacticsAttributes player = hit.collider.GetComponent<TacticsAttributes>();
+                    if (player.actionPoints > 0 && !player.ReturnCurrentCell().isSelectable)
                     {
                         DeselectAllUnits();
                         player.isSelected = true;
@@ -89,8 +96,8 @@ public class GameStateManager : MonoBehaviour
                 }
                 else if (hit.collider.tag == "Enemy" && !TurnManager.isPlayerTurn)
                 {
-                    EnemyMove player = hit.collider.GetComponent<EnemyMove>();
-                    if (player.actionPoints > 0)
+                    TacticsAttributes player = hit.collider.GetComponent<TacticsAttributes>();
+                    if (player.actionPoints > 0 && !player.ReturnCurrentCell().isSelectable)
                     {
                         DeselectAllUnits();
                         player.isSelected = true;
@@ -101,7 +108,6 @@ public class GameStateManager : MonoBehaviour
                     
                     if (!hit.collider.gameObject.GetComponent<Cell>().isSelectable)
                     {
-                        //asdf();
                         DeselectAllUnits();
                     }
                 }
@@ -122,7 +128,7 @@ public class GameStateManager : MonoBehaviour
         }
         for (int i = 0; i < enemies.Length; i++)
         {
-            enemies[i].GetComponent<EnemyMove>().health = enemies[i].GetComponent<EnemyMove>().healthReset;
+            enemies[i].GetComponent<TacticsAttributes>().health = enemies[i].GetComponent<TacticsAttributes>().healthReset;
             enemies[i].GetComponent<EnemyMove>().ResetAttributes();
             enemies[i].GetComponent<EnemyMove>().ResetPosition();
 

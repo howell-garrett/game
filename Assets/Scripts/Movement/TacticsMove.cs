@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class TacticsMove : TacticsAttributes
+public class TacticsMove : MonoBehaviour
 {
 
-    List<Cell> selectableCells = new List<Cell>();
+    
 
     [Header("Movement Attributes")]
     public float jumpHeight = 2f;
@@ -16,7 +16,7 @@ public class TacticsMove : TacticsAttributes
     [Header("Other")]
     public bool hasMoved = false;
     public bool isMoving = false;
-    public bool isSelected = false;
+    public GameObject attack;
 
     Stack<Cell> path = new Stack<Cell>(); //for the path
     Vector3 velocity = new Vector3();
@@ -32,14 +32,17 @@ public class TacticsMove : TacticsAttributes
 
     public float bounceHeight = 1;
 
+    public TacticsAttributes attributes;
+
     protected void Init()
     {
-        Grid.gameBoard[xPositionCurrent][zPositionCurrent].attachedUnit = transform.gameObject;
-        actionPointsReset = actionPoints;
-        healthReset = health;
+        attributes = GetComponent<TacticsAttributes>();
+        Grid.gameBoard[attributes.xPositionCurrent][attributes.zPositionCurrent].attachedUnit = transform.gameObject;
+        attributes.actionPointsReset = attributes.actionPoints;
+        attributes.healthReset = attributes.health;
         halfHeight = GetComponent<Collider>().bounds.extents.y;
-        Cell startingPlace = Grid.gameBoard[xPositionCurrent][zPositionCurrent];
-        yPositionCurrent = Grid.gameBoard[xPositionCurrent][zPositionCurrent].yCoordinate;
+        Cell startingPlace = Grid.gameBoard[attributes.xPositionCurrent][attributes.zPositionCurrent];
+        attributes.yPositionCurrent = Grid.gameBoard[attributes.xPositionCurrent][attributes.zPositionCurrent].yCoordinate;
         originalCell = startingPlace;
         transform.position = startingPlace.transform.position;
         transform.position = new Vector3(
@@ -74,9 +77,8 @@ public class TacticsMove : TacticsAttributes
         Queue<Cell> process = new Queue<Cell>();
         if (teamBounceCell == null)
         {
-            Debug.Log("COMPUTE");
             ComputeAdjList();
-            GetCurrentCell();
+            attributes.GetCurrentCell();
         }
 
         if (teamBounceCell != null)
@@ -97,6 +99,7 @@ public class TacticsMove : TacticsAttributes
         while (process.Count > 0)
         {
             Cell c = process.Dequeue();
+
             if (c && !c.isBlocked)
             {
                 if (c.attachedUnit)
@@ -104,18 +107,16 @@ public class TacticsMove : TacticsAttributes
                     if (c.attachedUnit.tag == tag)
                     {
                         c.isSelectable = true;
-                        selectableCells.Add(c);
+                        attributes.selectableCells.Add(c);
                     }
                 } else
                 {
                     c.isSelectable = true;
-                    selectableCells.Add(c);
+                    attributes.selectableCells.Add(c);
                 }
             }
-            //Debug.Log(c);
             if (c.distance < moveDistance)
             {
-               
                 foreach (Cell cell in c.adjacencyList)
                 {
                     
@@ -158,31 +159,21 @@ public class TacticsMove : TacticsAttributes
         }
     }
 
-    public void FindCellsInAttackRange() {
-        GetCurrentCell();
-        currentCell.FindNeighbors(jumpHeight);
-        List<Cell> l = currentCell.adjacencyList;
-        foreach (Cell c in l)
-        {
-            c.isInAttackRange = true;
-        }
-    }
-
     public void MoveToCell(Cell c)
     {
 
         path.Clear();
-        GetCurrentCell();
-        currentCell.attachedUnit = null;
+        attributes.GetCurrentCell();
+        attributes.currentCell.attachedUnit = null;
         Cell next = c;
         while (next != null)
         {
             path.Push(next);
-            Debug.Log(next);
             next = next.parent;
         }
         c.isTarget = true;
         isMoving = true;
+        GameStateManager.isAnyoneMoving = true;
     }
 
     public void Move()
@@ -191,7 +182,6 @@ public class TacticsMove : TacticsAttributes
         if (path.Count > 0)
         {
             Cell c = path.Peek();
-            //c.attachedUnit = null;
             Vector3 target = c.transform.position;
             //unit's position on top of target tile
             target.y += halfHeight + c.GetComponent<Collider>().bounds.extents.y;
@@ -207,8 +197,8 @@ public class TacticsMove : TacticsAttributes
             } else
             {
                 //reached goal
-                xPositionCurrent = path.Peek().xCoordinate;
-                zPositionCurrent = path.Peek().zCoordinate;
+                attributes.xPositionCurrent = path.Peek().xCoordinate;
+                attributes.zPositionCurrent = path.Peek().zCoordinate;
                 lastInPath = path.Pop();
             }
         }
@@ -219,32 +209,26 @@ public class TacticsMove : TacticsAttributes
             if (Vector3.Distance(transform.position, target) >= 0.05f)
             {
                 Bounce();
-                /*
-                CalculateHeading(target);
-                SetHorizontalVelocity();
-
-                transform.forward = heading;
-                transform.position += velocity * Time.deltaTime; */
             } else
             {
-                RemoveSelectableCells();
+                attributes.RemoveSelectableCells();
                 if (teamBounceCell != null)
                 {
                     Grid.gameBoard[finalDestination.xCoordinate][finalDestination.zCoordinate]
                         .attachedUnit = transform.gameObject;
-                    xPositionCurrent = finalDestination.xCoordinate;
-                    zPositionCurrent = finalDestination.zCoordinate;
-                    //teamBounceCell.attachedUnit = transform.gameObject;
+                    attributes.xPositionCurrent = finalDestination.xCoordinate;
+                    attributes.zPositionCurrent = finalDestination.zCoordinate;
                 } else
                 {
-                    Grid.gameBoard[xPositionCurrent][zPositionCurrent].attachedUnit = transform.gameObject;
+                    Grid.gameBoard[attributes.xPositionCurrent][attributes.zPositionCurrent].attachedUnit = transform.gameObject;
                 }
                 bounceTimeCounter = 0;
                 teamBounceCell = null;
                 finalDestination = null;
                 isMoving = false;
+                GameStateManager.isAnyoneMoving = false;
                 hasMoved = true;
-                actionPoints--;
+                attributes.actionPoints--;
                 GameStateManager.DeselectAllUnits();
             }
             
@@ -257,28 +241,6 @@ public class TacticsMove : TacticsAttributes
         bounceTimeCounter = bounceTimeCounter % bounceTime;
         transform.position = MathParabola.Parabola(
             transform.position, finalDestination.transform.position, bounceHeight, bounceTimeCounter / bounceTime);
-    }
-
-    public void Attack(TacticsMove tm)
-    {
-        tm.health -= attackPower;
-        actionPoints--;
-        GameStateManager.DeselectAllUnits();
-    }
-
-    protected void RemoveSelectableCells()
-    {
-        if (currentCell != null)
-        {
-            currentCell.isCurrent = false;
-            currentCell = null;
-        }
-        foreach(Cell cell in selectableCells)
-        {
-            cell.ResetBFSVariables();
-        }
-
-        selectableCells.Clear();
     }
 
     void CalculateHeading(Vector3 target)
@@ -300,13 +262,13 @@ public class TacticsMove : TacticsAttributes
             transform.position.y + halfHeight + originalCell.GetComponent<Collider>().bounds.extents.y, //adding halfHeights of unit and cell
             transform.position.z);
 
-        xPositionCurrent = originalCell.xCoordinate;
-        zPositionCurrent = originalCell.zCoordinate;
+        attributes.xPositionCurrent = originalCell.xCoordinate;
+        attributes.zPositionCurrent = originalCell.zCoordinate;
     }
     public void ResetAttributes()
     {
         hasMoved = false;
-        isSelected = false;
-        actionPoints = actionPointsReset;
+        attributes.isSelected = false;
+        attributes.actionPoints = attributes.actionPointsReset;
     }
 }
