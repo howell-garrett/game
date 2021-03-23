@@ -126,7 +126,7 @@ public class EnemyUI : MonoBehaviour
                             if (c.attachedUnit.tag != tag)
                             {
 
-                                pm.MoveToCell(c);
+                                pm.MoveToCell(c, true);
                             }
                             else
                             {
@@ -136,11 +136,11 @@ public class EnemyUI : MonoBehaviour
                         }
                         else if (pm.teamBounceCell != null)
                         {
-                            pm.MoveToCell(pm.teamBounceCell);
+                            pm.MoveToCell(pm.teamBounceCell, true);
                         }
                         else
                         {
-                            pm.MoveToCell(c);
+                            pm.MoveToCell(c, true);
                         }
                     }
                     else if (c.isInAttackRange)

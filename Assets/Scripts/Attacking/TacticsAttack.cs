@@ -31,9 +31,10 @@ public class TacticsAttack : MonoBehaviour
 
     public void Attack(TacticsAttributes targetAttributes)
     {
-        targetAttributes.health -= attackPower;
+        targetAttributes.TakeDamage(attackPower);
         attributes.actionPoints--;
         GameStateManager.DeselectAllUnits();
         Instantiate(attack, targetAttributes.transform.position, targetAttributes.transform.rotation);
+        attributes.anim.SetTrigger("Attack");
     }
 }

@@ -2,12 +2,15 @@
 using System.Collections.Generic;
 using UnityEngine;
 using HighlightingSystem;
+using UnityEngine.SceneManagement;
 
 public class GameStateManager : MonoBehaviour
 {
     public static bool isPlayerTurn = true;
     public static float gravity = 9.8f;
     public static bool isAnyoneMoving = false;
+    public static bool isAnyoneAttacking = false;
+    public static GameObject activeUnit;
     public GameObject[] players;
     public GameObject[] enemies;
     // Start is called before the first frame update
@@ -28,7 +31,7 @@ public class GameStateManager : MonoBehaviour
         {
             DeselectAllUnits();
         }
-        if (!isAnyoneMoving)
+        if (!isAnyoneMoving || !isAnyoneAttacking)
         {
             SelectUnit();
         }
@@ -42,6 +45,16 @@ public class GameStateManager : MonoBehaviour
             foreach (Cell c in list)
             {
                 c.ResetBFSVariables();
+            }
+        }
+    }
+    public static void AllCellsNotSelectable()
+    {
+        foreach (List<Cell> list in Grid.gameBoard)
+        {
+            foreach (Cell c in list)
+            {
+               // c.inWalkRange = false;
             }
         }
     }
@@ -60,20 +73,31 @@ public class GameStateManager : MonoBehaviour
 
     public static void DeselectAllUnits()
     {
+        activeUnit = null;
         GameObject[] playerUnits = GameObject.FindGameObjectsWithTag("Player");
         for (int i = 0; i < playerUnits.Length; i++)
         {
             playerUnits[i].GetComponent<PlayerMove>().Deselect();
+            playerUnits[i].GetComponent<TacticsAttributes>().Deselect();
             
         }
 
         GameObject[] enemyUnits = GameObject.FindGameObjectsWithTag("Enemy");
         for (int i = 0; i < enemyUnits.Length; i++)
         {
-            enemyUnits[i].GetComponent<TacticsAttributes>().isSelected = false;
+            enemyUnits[i].GetComponent<TacticsAttributes>().Deselect();
+            enemyUnits[i].GetComponent<EnemyMove>().Deselect();
             enemyUnits[i].GetComponent<Highlighter>().constant = false;
         }
         DeselectAllCells();
+    }
+
+    public static void SwapUnitLayer(int layer, List<GameObject> units)
+    {
+        for (int i = 0; i< units.Count; i++)
+		{
+            units[i].layer = layer;
+        }
     }
 
     void SelectUnit()
@@ -91,6 +115,7 @@ public class GameStateManager : MonoBehaviour
                     if (player.actionPoints > 0 && !player.ReturnCurrentCell().isSelectable)
                     {
                         DeselectAllUnits();
+                        activeUnit = player.gameObject;
                         player.isSelected = true;
                     }
                 }
@@ -100,6 +125,7 @@ public class GameStateManager : MonoBehaviour
                     if (player.actionPoints > 0 && !player.ReturnCurrentCell().isSelectable)
                     {
                         DeselectAllUnits();
+                        activeUnit = player.gameObject;
                         player.isSelected = true;
                     }
                 }
@@ -108,7 +134,16 @@ public class GameStateManager : MonoBehaviour
                     
                     if (!hit.collider.gameObject.GetComponent<Cell>().isSelectable)
                     {
-                        DeselectAllUnits();
+                        if (!hit.collider.gameObject.GetComponent<Cell>().isInAttackRange)
+                        {
+                            if (!hit.collider.gameObject.GetComponent<Cell>().isInShootRange)
+                            {
+                                if (!isAnyoneAttacking && !isAnyoneMoving)
+                                {
+                                    DeselectAllUnits();
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -117,28 +152,8 @@ public class GameStateManager : MonoBehaviour
 
     void ResetBoard()
     {
-        TurnManager.isPlayerTurn = true;
-        DeselectAllUnits();
-        for (int i = 0; i < Grid.gameBoard.Count; i++)
-        {
-            for (int j = 0; j < Grid.gameBoard[i].Count; j++)
-            {
-                Grid.gameBoard[i][j].ResetBFSVariables();
-            }
-        }
-        for (int i = 0; i < enemies.Length; i++)
-        {
-            enemies[i].GetComponent<TacticsAttributes>().health = enemies[i].GetComponent<TacticsAttributes>().healthReset;
-            enemies[i].GetComponent<EnemyMove>().ResetAttributes();
-            enemies[i].GetComponent<EnemyMove>().ResetPosition();
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
 
-        }
-        for (int i = 0; i < players.Length; i++)
-        {
-            players[i].GetComponent<PlayerMove>().ResetAttributes();
-            players[i].GetComponent<PlayerMove>().ResetPosition();
-        }
-
-}
+    }
 
 }

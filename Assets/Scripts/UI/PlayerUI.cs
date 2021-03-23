@@ -1,19 +1,34 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using HighlightingSystem;
 
 public class PlayerUI : MonoBehaviour
 {
-    PlayerMove pm;
-    PlayerAttack pa;
+    TacticsMove pm;
+    TacticsAttack pa;
+    TacticsShoot ps;
     TacticsAttributes attributes;
+
+    public Text actionPointCount;
     // Start is called before the first frame update
     void Start()
     {
-        pm = GetComponent<PlayerMove>();
-        pa = GetComponent<PlayerAttack>();
+        if (tag == "Player")
+        {
+            pm = GetComponent<PlayerMove>();
+            pa = GetComponent<PlayerAttack>();
+            ps = GetComponent<PlayerShoot>();
+        } else if (tag == "Enemy")
+        {
+            pm = GetComponent<EnemyMove>();
+            pa = GetComponent<EnemyAttack>();
+            ps = GetComponent<EnemyShoot>();
+        }
+        
         attributes = GetComponent<TacticsAttributes>();
+        UpdateActionPointsDisplay(attributes.actionPoints);
     }
 
     // Update is called once per frame
@@ -21,8 +36,8 @@ public class PlayerUI : MonoBehaviour
     {
         if (!TurnManager.isPlayerTurn)
         {
-            HideUI();
-            return;
+            //HideUI();
+            //return;
         }
 
         if (attributes.isSelected)
@@ -32,9 +47,13 @@ public class PlayerUI : MonoBehaviour
             {
                 showMovementInfo();
             }
-            if (attributes.attackingSelected)
+            else if (attributes.attackingSelected)
             {
                 showAttackInfo();
+            }
+            else if (attributes.shootSelected)
+            {
+                showShootInfo();
             }
 
         }
@@ -46,6 +65,7 @@ public class PlayerUI : MonoBehaviour
 
     void ShowUI()
     {
+        UpdateActionPointsDisplay(attributes.actionPoints);
         GetComponent<Highlighter>().constant = true;
         transform.GetChild(0).GetComponent<Canvas>().enabled = true;
     }
@@ -72,17 +92,48 @@ public class PlayerUI : MonoBehaviour
         }
     }
 
+    void showShootInfo()
+    {
+        if (Grid.gameBoard != null && !ps.isShooting)
+        {
+            CheckMouse();
+            if (!ps.checkedSelectableCells)
+            {
+                attributes.GetCurrentCell();
+                ps.FindSelectableCells(attributes.currentCell);
+                ps.checkedSelectableCells = true;
+            }
+        }
+        else
+        {
+            ps.Shoot();
+        }
+    }
+
+    void ResetCheckedSelectable (bool movement, bool attack, bool shoot)
+    {
+        attributes.movementSelected = movement;
+        attributes.attackingSelected = attack;
+        attributes.shootSelected = shoot;
+        pm.checkedSelectableCells = false;
+        ps.checkedSelectableCells = false;
+        GameStateManager.DeselectAllCells();
+    }
+
+    public void selectShoot()
+    {
+        ResetCheckedSelectable(false, false, true);
+    }
+
     public void selectMovement()
     {
-        attributes.attackingSelected = false;
-        attributes.movementSelected = true;
+        ResetCheckedSelectable(true, false, false);
+        Debug.Log("SelectMovement");
     }
 
     public void selectAttack()
     {
-        attributes.attackingSelected = true;
-        attributes.movementSelected = false;
-        GameStateManager.DeselectAllCells();
+        ResetCheckedSelectable(false, true, false);
     }
 
     void showAttackInfo()
@@ -107,6 +158,11 @@ public class PlayerUI : MonoBehaviour
         pm.FindSelectableCells(c);
     }
 
+    void UpdateActionPointsDisplay(int ap)
+    {
+        actionPointCount.text = "AP: " + ap;
+    }
+
     void CheckMouse()
     {
         if (Input.GetMouseButtonUp(0))
@@ -122,12 +178,13 @@ public class PlayerUI : MonoBehaviour
                     if (c.isSelectable && !c.isCurrent)
                     {
                         pm.finalDestination = c;
+                        c.isFinalDestination = true;
                         if (c.attachedUnit != null)
                         {
                             if (c.attachedUnit.tag != tag)
                             {
 
-                                pm.MoveToCell(c);
+                                pm.MoveToCell(c, true);
                             }
                             else
                             {
@@ -137,19 +194,25 @@ public class PlayerUI : MonoBehaviour
                         }
                         else if (pm.teamBounceCell != null)
                         {
-                            pm.MoveToCell(pm.teamBounceCell);
+                            pm.MoveToCell(pm.teamBounceCell, true);
                         }
                         else
                         {
-                            pm.MoveToCell(c);
+                            pm.MoveToCell(c, true);
                         }
                     }
-                    else if (c.isInAttackRange)
+                    
+                    else if (c.isInAttackRange && c.attachedUnit)
                     {
                         pa.Attack(c.attachedUnit.GetComponent<TacticsAttributes>());
                     }
+                    else if (c.isInShootRange && c.attachedUnit)
+                    {
+                        ps.SpawnBullet(c.attachedUnit);
+                        ps.isShooting = true;
+                    }
                 }
-                else if (hit.collider.tag == "Player")
+                else if (hit.collider.tag == tag)
                 {
                     Cell c = hit.collider.gameObject.GetComponent<TacticsAttributes>().ReturnCurrentCell();
                     if (c.isSelectable)
@@ -158,15 +221,19 @@ public class PlayerUI : MonoBehaviour
                         ShowSelectableTeamBounceCells(c);
                     } 
                 }
-                else if (hit.collider.tag == "Enemy")
+                else if (hit.collider.tag != tag && hit.collider.gameObject.GetComponent<TacticsAttributes>())
                 {
                     Cell c = hit.collider.gameObject.GetComponent<TacticsAttributes>().ReturnCurrentCell();
                     if (c.isInAttackRange)
                     {
                         pa.Attack(c.attachedUnit.GetComponent<TacticsAttributes>());
+                    } else if (c.isInShootRange)
+                    {
+                        ps.SetUpShot(c.attachedUnit);
                     }
                 }
             }
         }
     }
+
 }

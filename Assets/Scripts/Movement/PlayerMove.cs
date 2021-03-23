@@ -6,13 +6,13 @@ using HighlightingSystem;
 public class PlayerMove : TacticsMove
 {
     private bool hasInitialized = false;
-
-    public bool checkedSelectableCells = false;
+    
 
     // Start is called before the first frame update
     void Start()
     {
-        
+        Vector3 p = new Vector3(0, 0.5f, 0);
+        transform.position += p;
     }
 
     // Update is called once per frame
@@ -26,17 +26,5 @@ public class PlayerMove : TacticsMove
             Init();
             hasInitialized = true;
         }
-    }
-
-    public void Deselect()
-    {
-        attributes.isSelected = false;
-        attributes.movementSelected = false;
-        attributes.attackingSelected = false;
-        checkedSelectableCells = false;
-        teamBounceCell = null;
-        finalDestination = null;
-        GetComponent<Highlighter>().constant = false;
-        
     }
 }
