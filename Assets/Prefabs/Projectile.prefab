@@ -126,3 +126,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   willMiss: 0
+  target: {fileID: 0}
+  damage: 0
+  velocity: {x: 0, y: 0, z: 0}
+  heading: {x: 0, y: 0, z: 0}
+  impactPrefab: {fileID: 1161387918750820, guid: 354a5321132adc64ea182ed454d28ad2, type: 3}

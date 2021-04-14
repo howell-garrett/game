@@ -21,7 +21,7 @@ public class TacticsMove : MonoBehaviour
     public float bounceTime = 2;
     public float halfHeight = 0;
     public float bounceHeight = 1;
-    public Cell teamBounceCell;
+    public List<Cell> teamBounceCells;
     public Cell finalDestination; //nice
     public TacticsAttributes attributes;
     public bool checkedSelectableCells = false;
@@ -37,20 +37,18 @@ public class TacticsMove : MonoBehaviour
 
     protected void Init()
     {
+        teamBounceCells = new List<Cell>();
         pathRenderer = GetComponent<LineRenderer>();
         animator = GetComponent<Animator>();
         attributes = GetComponent<TacticsAttributes>();
-        Grid.gameBoard[attributes.xPositionCurrent][attributes.zPositionCurrent].attachedUnit = transform.gameObject;
         attributes.actionPointsReset = attributes.actionPoints;
         attributes.healthReset = attributes.health;
-        Cell startingPlace = Grid.gameBoard[attributes.xPositionCurrent][attributes.zPositionCurrent];
-        attributes.yPositionCurrent = Grid.gameBoard[attributes.xPositionCurrent][attributes.zPositionCurrent].yCoordinate;
+        attributes.cell.attachedUnit = transform.gameObject;
+        Cell startingPlace = attributes.cell;
+        attributes.yPositionCurrent = attributes.cell.yCoordinate;
         originalCell = startingPlace;
         transform.position = startingPlace.transform.position;
-        transform.position = new Vector3(
-            transform.position.x, 
-            transform.position.y  + startingPlace.GetComponent<Collider>().bounds.extents.y, //adding halfHeights of unit and cell
-            transform.position.z);
+        transform.position += new Vector3(0, startingPlace.GetComponent<Collider>().bounds.extents.y,0);
     }
 
     public Cell GetTargetCell(GameObject target)
@@ -64,38 +62,29 @@ public class TacticsMove : MonoBehaviour
 
     public void ComputeAdjList()
     {
-        List<List<Cell>> board = Grid.gameBoard;
-        for (int i = 0; i < board.Count; i++) {
-            for (int j = 0; j < board[i].Count; j++)
-            {
-                Cell c = board[i][j].GetComponent<Cell>();
-                c.FindNeighbors(jumpHeight);
-            }
+        Cell[] cells = GameStateManager.FindAllCells();
+        for (int i = 0; i < cells.Length; i++)
+        {
+            cells[i].FindNeighbors(jumpHeight);
         }
     }
 
     public void FindSelectableCells(Cell cellParam)
     {
         Queue<Cell> process = new Queue<Cell>();
-        if (teamBounceCell == null)
+        if (teamBounceCells.Count <= 0)
         {
             ComputeAdjList();
             attributes.GetCurrentCell();
         }
 
-        if (teamBounceCell != null)
-        {
-            process.Enqueue(teamBounceCell);
-            teamBounceCell.visited = true;
-        }
-        else
-        {
+        //Debug.Log(cellParam);
             process.Enqueue(cellParam);
             if (cellParam)
             {
                 cellParam.visited = true;
             }
-        }
+        
 
 
         int availableMoveSpots = moveDistance;
@@ -106,7 +95,6 @@ public class TacticsMove : MonoBehaviour
         while (process.Count > 0)
         {
             Cell c = process.Dequeue();
-
             if (c && !c.isBlocked)
             {
                 if (c.attachedUnit)
@@ -124,46 +112,50 @@ public class TacticsMove : MonoBehaviour
                     attributes.selectableCells.Add(c);
                 }
             }
-            if (!teamBounceCell)
+            if (teamBounceCells.Count <= 0)
             {
-
-                if (c.distance < availableMoveSpots)
+                if (c && c.distance < availableMoveSpots)
                 {
                     foreach (Cell cell in c.adjacencyList)
                     {
                         if (!cell.visited)
                         {
-                            if (cell.attachedUnit != null)
+                            if (cell.yCoordinate <= attributes.yPositionCurrent)
                             {
-                                if (cell.attachedUnit.tag == tag)
+                                if (cell.attachedUnit != null)
+                                {
+                                    if (cell.attachedUnit.tag == tag)
+                                    {
+                                        cell.parent = c;
+                                        cell.visited = true;
+                                        cell.distance = 1 + c.distance;
+                                        process.Enqueue(cell);
+                                    }
+                                    else
+                                    {
+                                        cell.visited = true;
+                                        cell.distance = 1 + c.distance;
+                                    }
+                                }
+                                else if (!cell.isBlocked)
                                 {
                                     cell.parent = c;
                                     cell.visited = true;
                                     cell.distance = 1 + c.distance;
                                     process.Enqueue(cell);
-                                } else
+                                }
+                                else if (cell.isBlocked)
                                 {
                                     cell.visited = true;
                                     cell.distance = 1 + c.distance;
                                 }
-                            }
-                            else if (!cell.isBlocked)
-                            {
-                                cell.parent = c;
-                                cell.visited = true;
-                                cell.distance = 1 + c.distance;
-                                process.Enqueue(cell);
-                            }
-                            else if (cell.isBlocked)
-                            {
-                                cell.visited = true;
-                                cell.distance = 1 + c.distance;
                             }
                         }
                     }
                 }
             } else
             {
+               // Debug.Log(11111);
                 if (c.distance < moveDistance)
                 {
                     foreach (Cell cell in c.adjacencyList)
@@ -201,36 +193,43 @@ public class TacticsMove : MonoBehaviour
         }
     }
 
+    Vector3 finalDesinationTarget;
     public void MoveToCell(Cell c, bool startMoving)
     {
+       
         path.Clear();
         attributes.GetCurrentCell();
-        attributes.currentCell.attachedUnit = null;
         Cell next = c;
         while (next != null)
         {
             path.Push(next);
             next = next.parent;
         }
-        
         Cell[] pathCopy = new Cell[path.Count];
-        pathRenderer.positionCount = path.Count;
-        pathRenderer.SetPositions(CellsToPositions(path));
-        if (teamBounceCell && finalDestination)
+
+        if (teamBounceCells.Count > 0 && finalDestination)
         {
-            DrawBounceLine(finalDestination.transform.position);
+            //DrawBounceLine(finalDestination.transform.position, true);
         }
         pathRenderer.enabled = true;
         if (startMoving)
         {
-
+            if (teamBounceCells.Count > 0)
+            {
+                teamBounceCells.RemoveAt(0);
+            }
+            attributes.currentCell.attachedUnit = null;
             attributes.actionPoints -= path.Count - 1;
             animator.SetBool("isWalking", true);
             GameStateManager.isAnyoneMoving = true;
             isMoving = true;
             c.isTarget = true;
-            //GameStateManager.AllCellsNotSelectable();
+            finalDesinationTarget = finalDestination.transform.position;
+            finalDesinationTarget.y += finalDestination.GetComponent<Collider>().bounds.extents.y;
+            return;
         }
+        pathRenderer.positionCount = path.Count;
+        pathRenderer.SetPositions(CellsToPositions(path));
     }
 
     Vector3[] CellsToPositions(Stack<Cell> stack)
@@ -249,10 +248,10 @@ public class TacticsMove : MonoBehaviour
     }
 
     bool bounceHasTriggered = false;
+    Cell lastInPath = null;
     public void Move()
     {
-        Cell lastInPath = null;
-        //Debug.Log(path.Count);
+        
         if (path.Count > 0)
         {
             Cell c = path.Peek();
@@ -261,6 +260,12 @@ public class TacticsMove : MonoBehaviour
             target.y += c.GetComponent<Collider>().bounds.extents.y;
             if (Vector3.Distance(transform.position, target) >= 0.05f)
             {
+                if (lastInPath && lastInPath.yCoordinate != c.yCoordinate)
+                {
+                    Bounce(target);
+                    return;
+                }
+                bounceTimeCounter = 0;
 
                 CalculateHeading(target);
                 SetHorizontalVelocity();
@@ -269,6 +274,7 @@ public class TacticsMove : MonoBehaviour
                 transform.position += velocity * Time.deltaTime;
             } else
             {
+                //Debug.Log();
                 //reached goal
                 attributes.xPositionCurrent = path.Peek().xCoordinate;
                 attributes.zPositionCurrent = path.Peek().zCoordinate;
@@ -277,33 +283,49 @@ public class TacticsMove : MonoBehaviour
         }
         else 
         {
-            Vector3 target = finalDestination.transform.position;
-            target.y += finalDestination.GetComponent<Collider>().bounds.extents.y;
-            if (Vector3.Distance(transform.position, target) >= 0.05f)
+            if (teamBounceCells.Count > 0)
+            {
+                Vector3 target;
+                target = teamBounceCells[0].transform.position;
+                target.y += teamBounceCells[0].GetComponent<Collider>().bounds.extents.y;
+                
+                if (Vector3.Distance(transform.position, target) >= 0.05f)
+                {
+                    if (!bounceHasTriggered)
+                    {
+                        attributes.anim.SetTrigger("bounce");
+                        bounceHasTriggered = true;
+                    }
+                    Bounce(target);
+                } else
+                {
+                    bounceTimeCounter = 0;
+                    bounceHasTriggered = false;
+                    teamBounceCells.RemoveAt(0);
+                }
+                
+            }
+            else if (Vector3.Distance(transform.position, finalDesinationTarget) >= 0.05f)
             {
                 if (!bounceHasTriggered)
                 {
                     attributes.anim.SetTrigger("bounce");
                     bounceHasTriggered = true;
                 }
-                Bounce();
-            } else
+                Bounce(finalDesinationTarget);
+            }
+            else
             {
                 attributes.RemoveSelectableCells();
-                if (teamBounceCell != null)
-                {
-                    Grid.gameBoard[finalDestination.xCoordinate][finalDestination.zCoordinate]
-                        .attachedUnit = transform.gameObject;
-                    attributes.xPositionCurrent = finalDestination.xCoordinate;
-                    attributes.zPositionCurrent = finalDestination.zCoordinate;
-                } else
-                {
-                    Grid.gameBoard[attributes.xPositionCurrent][attributes.zPositionCurrent].attachedUnit = transform.gameObject;
-                }
+                finalDestination.attachedUnit = transform.gameObject;
+                attributes.xPositionCurrent = finalDestination.xCoordinate;
+                attributes.zPositionCurrent = finalDestination.zCoordinate;
+                attributes.yPositionCurrent = finalDestination.yCoordinate;
+                attributes.cell = finalDestination;
                 bounceTimeCounter = 0;
                 pathRenderer.enabled = false;
                 bounceHasTriggered = false;
-                teamBounceCell = null;
+                teamBounceCells.Clear();
                 finalDestination = null;
                 isMoving = false;
                 GameStateManager.isAnyoneMoving = false;
@@ -314,21 +336,25 @@ public class TacticsMove : MonoBehaviour
             
         }
     }
-    void Bounce()
+    void Bounce(Vector3 target)
     {
-        Vector3 c = new Vector3(finalDestination.transform.position.x, transform.position.y, finalDestination.transform.position.z);
+        Vector3 c = new Vector3(target.x, transform.position.y, target.z);
         transform.LookAt(c);
         bounceTimeCounter += Time.deltaTime;
 
         bounceTimeCounter = bounceTimeCounter % bounceTime;
         transform.position = MathParabola.Parabola(
-            transform.position, finalDestination.transform.position, bounceHeight, bounceTimeCounter / bounceTime);
+            transform.position, target, bounceHeight, bounceTimeCounter / bounceTime);
     }
 
-    public void DrawBounceLine(Vector3 posn)
+    public void DrawBounceLine(Vector3 posn, bool addPoint)
     {
-        pathRenderer.positionCount = path.Count + 1;
-        pathRenderer.SetPosition(path.Count, posn);
+        if (addPoint)
+        {
+            pathRenderer.positionCount = pathRenderer.positionCount + 1;
+        }
+        pathRenderer.SetPosition(pathRenderer.positionCount - 1, posn);
+
     }
 
     void CalculateHeading(Vector3 target)
@@ -366,7 +392,7 @@ public class TacticsMove : MonoBehaviour
         attributes.movementSelected = false;
         attributes.attackingSelected = false;
         checkedSelectableCells = false;
-        teamBounceCell = null;
+        teamBounceCells.Clear();
         finalDestination = null;
         GetComponent<Highlighter>().constant = false;
         GetComponent<LineRenderer>().enabled = false;

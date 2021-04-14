@@ -61,7 +61,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 162496f66fc7c6b40b611a6af2b23f09, type: 2}
+  - {fileID: 2100000, guid: dcbc3c64ab685fc4badb46ac5b7d6544, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -95,7 +95,7 @@ BoxCollider:
   m_Enabled: 1
   serializedVersion: 2
   m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Center: {x: 0, y: 1, z: 0}
 --- !u!114 &7392341876582450387
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -125,3 +125,12 @@ MonoBehaviour:
   visited: 0
   parent: {fileID: 0}
   distance: 0
+  isFinalDestination: 0
+  inWalkRange: 0
+  red: {fileID: 2100000, guid: 1d598b3d3a8ee644a86817ee2f429b11, type: 2}
+  green: {fileID: 2100000, guid: 1f511b2ff4372db45ae8859475383a09, type: 2}
+  cyan: {fileID: 2100000, guid: f32f1a3274f343948b00f9f42376d158, type: 2}
+  yellow: {fileID: 2100000, guid: 460ebe0b3273ed74fa61e772cbb5ed7c, type: 2}
+  grey: {fileID: 2100000, guid: d09aca319115c6e43991643c24010c35, type: 2}
+  white: {fileID: 2100000, guid: dcbc3c64ab685fc4badb46ac5b7d6544, type: 2}
+  magenta: {fileID: 2100000, guid: bd7cc70387fb26c44b0aa7f3135d477a, type: 2}

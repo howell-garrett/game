@@ -1,5 +1,5 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
+using System;
 using UnityEngine;
 using UnityEngine.UI;
 using HighlightingSystem;
@@ -10,8 +10,10 @@ public class PlayerUI : MonoBehaviour
     TacticsAttack pa;
     TacticsShoot ps;
     TacticsAttributes attributes;
-
+    public GameObject shotCount;
+    InputField shotCountInputField;
     public Text actionPointCount;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -26,11 +28,15 @@ public class PlayerUI : MonoBehaviour
             pa = GetComponent<EnemyAttack>();
             ps = GetComponent<EnemyShoot>();
         }
-        
+        shotCount.SetActive(false);
+        shotCountInputField = shotCount.GetComponent<InputField>();
+        shotCountInputField.text = "0";
         attributes = GetComponent<TacticsAttributes>();
         UpdateActionPointsDisplay(attributes.actionPoints);
     }
 
+    int count = 0;
+    float timer = 0;
     // Update is called once per frame
     void Update()
     {
@@ -77,12 +83,12 @@ public class PlayerUI : MonoBehaviour
 
     void showMovementInfo()
     {
-        if (Grid.gameBoard != null && !pm.isMoving)
+        if (!pm.isMoving)
         {
             CheckMouse();
             if (!pm.checkedSelectableCells)
             {
-                pm.FindSelectableCells(attributes.currentCell);
+                pm.FindSelectableCells(attributes.cell);
                 pm.checkedSelectableCells = true;
             }
         }
@@ -94,7 +100,7 @@ public class PlayerUI : MonoBehaviour
 
     void showShootInfo()
     {
-        if (Grid.gameBoard != null && !ps.isShooting)
+        if ( !ps.isShooting)
         {
             CheckMouse();
             if (!ps.checkedSelectableCells)
@@ -123,27 +129,35 @@ public class PlayerUI : MonoBehaviour
     public void selectShoot()
     {
         ResetCheckedSelectable(false, false, true);
+        shotCount.SetActive(true);
     }
 
     public void selectMovement()
     {
         ResetCheckedSelectable(true, false, false);
-        Debug.Log("SelectMovement");
+        shotCount.SetActive(false);
     }
 
     public void selectAttack()
     {
         ResetCheckedSelectable(false, true, false);
+        shotCount.SetActive(false);
     }
 
     void showAttackInfo()
     {
         GameStateManager.DeselectAllCells();
-        if (Grid.gameBoard != null && !pm.isMoving)
+        if (!pm.isMoving)
         {
             pa.FindCellsInAttackRange();
             CheckMouse();
         }
+    }
+
+    public void EndTurn()
+    {
+        attributes.actionPoints = 0;
+        GameStateManager.DeselectAllUnits();
     }
 
     public void Deselect()
@@ -153,7 +167,6 @@ public class PlayerUI : MonoBehaviour
 
     void ShowSelectableTeamBounceCells(Cell c)
     {
-        pm.teamBounceCell = c;
         GameStateManager.ResetCellInfoWithoutParent();
         pm.FindSelectableCells(c);
     }
@@ -186,15 +199,20 @@ public class PlayerUI : MonoBehaviour
 
                                 pm.MoveToCell(c, true);
                             }
-                            else
+                            else if (pm.teamBounceCells.Count < attributes.maximumTeamBounces)
                             {
-                                pm.teamBounceCell = c;
+                                pm.teamBounceCells.Add(c);
+                                pm.DrawBounceLine(c.transform.position, true);
                                 ShowSelectableTeamBounceCells(c);
                             }
                         }
-                        else if (pm.teamBounceCell != null)
+                        else if (pm.teamBounceCells.Count > 0)
                         {
-                            pm.MoveToCell(pm.teamBounceCell, true);
+                            pm.MoveToCell(pm.teamBounceCells[0], true);
+                            foreach (Cell item in pm.teamBounceCells)
+                            {
+                                item.isTarget = true;
+                            }
                         }
                         else
                         {
@@ -212,13 +230,19 @@ public class PlayerUI : MonoBehaviour
                         ps.isShooting = true;
                     }
                 }
-                else if (hit.collider.tag == tag)
+                else if (hit.collider.tag == tag && hit.collider.gameObject.name != name)
                 {
                     Cell c = hit.collider.gameObject.GetComponent<TacticsAttributes>().ReturnCurrentCell();
                     if (c.isSelectable)
                     {
-                        pm.teamBounceCell = c;
-                        ShowSelectableTeamBounceCells(c);
+                        if (pm.teamBounceCells.Count < attributes.maximumTeamBounces)
+                        {
+                            pm.teamBounceCells.Add(c);
+                            //Debug.Log(c);
+                            pm.DrawBounceLine(c.transform.position, true);
+                            ShowSelectableTeamBounceCells(c);
+                        }
+                            
                     } 
                 }
                 else if (hit.collider.tag != tag && hit.collider.gameObject.GetComponent<TacticsAttributes>())
@@ -229,10 +253,41 @@ public class PlayerUI : MonoBehaviour
                         pa.Attack(c.attachedUnit.GetComponent<TacticsAttributes>());
                     } else if (c.isInShootRange)
                     {
-                        ps.SetUpShot(c.attachedUnit);
+                        int howManyShots = Int32.Parse(shotCountInputField.text);
+                        if (howManyShots * ps.shotCost > attributes.actionPoints)
+                        {
+                            Debug.Log("not enough AP");
+                            return;
+                        }
+                        if (howManyShots == 0)
+                        {
+                            return;
+                        }
+                        if (!ps.HasLineOfSight(c))
+                        {
+                            return;
+                        }
+                        print("herhe");
+                        count = 0;
+                        StartCoroutine(ShootCoroutine(ps, c, howManyShots));
+                        shotCountInputField.text = "0";
+                        shotCount.SetActive(false);
                     }
                 }
             }
+        }
+    }
+
+    IEnumerator ShootCoroutine(TacticsShoot ps, Cell c, int howManyShots)
+    {
+        
+        while (count < howManyShots)
+        {
+            
+            yield return new WaitForSeconds(.1f);
+            ps.SetUpShot(c.attachedUnit);
+            timer = 0;
+            count++;
         }
     }
 

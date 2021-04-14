@@ -72,6 +72,7 @@ public class SimpleTooltip : MonoBehaviour
         cursorInside = true;
 
         // Update the text for both layers
+        //Debug.Log(tooltipController);
         tooltipController.SetCustomStyledText(infoLeft, simpleTooltipStyle, STController.TextAlign.Left);
         tooltipController.SetCustomStyledText(infoRight, simpleTooltipStyle, STController.TextAlign.Right);
 

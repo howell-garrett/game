@@ -5,6 +5,7 @@ using HighlightingSystem;
 
 public class EnemyUI : MonoBehaviour
 {
+    /*
     EnemyMove pm;
     EnemyAttack pa;
     public TacticsAttributes attributes;
@@ -166,5 +167,5 @@ public class EnemyUI : MonoBehaviour
                 }
             }
         }
-    }
+    } */
 }

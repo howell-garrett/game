@@ -84,7 +84,6 @@ public class TurnManager : MonoBehaviour
     }
     public static void NewEnemyTurn()
     {
-        //GameStateManager.DeselectAllUnits();
         GameObject.FindGameObjectWithTag("TurnText").GetComponent<Text>().text = "Enemy Turn";
         isPlayerTurn = false;
         for (int i = 0; i < enemyUnits.Length; i++)

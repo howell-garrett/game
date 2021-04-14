@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 
 public class Grid : MonoBehaviour
@@ -7,12 +8,12 @@ public class Grid : MonoBehaviour
     public GameObject cellPrefab;
     public GameObject blockedPrefab;
     public GameObject fullCoverPrefab;
-    public int gameBoardWidth, gameBoardHeight;
+    public static int gameBoardWidth, gameBoardHeight;
 
     public static List<List<Cell>> gameBoard;
     public static bool isPlayerTurn = true;
 
-    GameObject[] cells;
+    List<Cell> cells;
     // Start is called before the first frame update
     void Start()
     {
@@ -21,33 +22,43 @@ public class Grid : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        //Debug.Log(1 / Time.unscaledDeltaTime);
     }
 
-    void Awake()
+    //[MenuItem("Asdf/Build Game board #%w")]
+    public void Awake()
     {
         gameBoard = new List<List<Cell>>();
-        for (int i = 0; i < gameBoardHeight; i++)
+        cells = new List<Cell>();
+        gameBoardHeight = 0;
+        gameBoardWidth = 0;
+        foreach (GameObject go in GameObject.FindGameObjectsWithTag("Cell"))
         {
-            List<Cell> row = new List<Cell>();
-            for (int j = 0; j < gameBoardWidth; j++)
+            Cell c = go.GetComponent<Cell>();
+            cells.Add(c);
+            if (c.zCoordinate > gameBoardHeight)
             {
-                Cell c = new Cell(i, j, 1);
-                if (j == 7 && i < 6) { c.isBlocked = true; c.isCovered = true; } //temp to add height
-                //if (j == 8 && i <= 5) { c.isBlocked = true; }
-                row.Add(c);
+                gameBoardHeight = c.zCoordinate;
+
             }
-            gameBoard.Add(row);
+            if (c.xCoordinate > gameBoardWidth)
+            {
+                gameBoardWidth = c.xCoordinate;
+            }
         }
-        gameBoard[5][3].isCovered = true;
-        gameBoard[5][3].isBlocked = true;
-
-        gameBoard[3][3].isCovered = true;
-        gameBoard[3][3].isBlocked = true;
-
-        gameBoard[2][4].isCovered = true;
-        gameBoard[2][4].isBlocked = true;
-
-        RenderBoard();
+        for (int i = 0; i <= gameBoardHeight; i++)
+        {
+            gameBoard.Add(new List<Cell>());
+            for (int j = 0; j <= gameBoardWidth; j++)
+            {
+                gameBoard[i].Add(null);
+            }
+        }
+        foreach (Cell c in cells)
+        {
+            gameBoard[c.xCoordinate][c.zCoordinate] = c; 
+        }
+        
     }
 
     public void RenderBoard()
@@ -70,32 +81,13 @@ public class Grid : MonoBehaviour
     {
         Vector3 position;
         position.x = cell.xCoordinate; // * 1.05f;
-        position.y = 0f + cell.yCoordinate;
+        position.y = cell.yCoordinate;
         position.z = cell.zCoordinate; // * 0.9f;
 
         if (isOdd)
         {
             //position.x += 0.512f; these comments are remanants from hexagon board
         }
-        
-       if (cell.isCovered)
-        {
-            GameObject cellGameObject = Instantiate<GameObject>(fullCoverPrefab);
-
-            cellGameObject.name = cell.xCoordinate + "," + cell.zCoordinate;
-
-            cellGameObject.GetComponent<Cell>().xCoordinate = cell.xCoordinate;
-            cellGameObject.GetComponent<Cell>().yCoordinate = cell.yCoordinate;
-            cellGameObject.GetComponent<Cell>().zCoordinate = cell.zCoordinate;
-            cellGameObject.GetComponent<Cell>().isBlocked = cell.isBlocked;
-            cellGameObject.GetComponent<Cell>().isCovered = cell.isCovered;
-
-
-            gameBoard[cell.xCoordinate][cell.zCoordinate] = cellGameObject.GetComponent<Cell>();
-            cellGameObject.transform.SetParent(transform, false);
-            cellGameObject.transform.position = position;
-        } else
-        {
             GameObject cellGameObject = Instantiate<GameObject>(cellPrefab);
 
             cellGameObject.name = cell.xCoordinate + "," + cell.zCoordinate;
@@ -109,9 +101,14 @@ public class Grid : MonoBehaviour
             gameBoard[cell.xCoordinate][cell.zCoordinate] = cellGameObject.GetComponent<Cell>();
             cellGameObject.transform.SetParent(transform, false);
             cellGameObject.transform.position = position;
+
+        if (cell.isBlocked)
+        {
+            GameObject cover = Instantiate<GameObject>(fullCoverPrefab);
+            cover.GetComponent<BlockedCell>().cell = cellGameObject.GetComponent<Cell>();
+            cover.transform.position = cellGameObject.transform.position;
+            cover.transform.position += new Vector3(0,  cellGameObject.GetComponent<Collider>().bounds.extents.y, 0);
+            cover.transform.position += new Vector3(0,  cover.GetComponent<Collider>().bounds.extents.y, 0);
         }
-        
-
-
     }
 }

@@ -5,6 +5,7 @@ using UnityEngine;
 public class BlockedCell : MonoBehaviour
 {
     public GameObject dustPrefab;
+    public Cell cell;
     // Start is called before the first frame update
     void Start()
     {
@@ -23,6 +24,8 @@ public class BlockedCell : MonoBehaviour
         {
             if (other.gameObject.GetComponent<ProjectileAttributes>().willMiss)
             {
+                if (other.gameObject.GetComponent<ProjectileAttributes>().target)
+                //Instantiate(other.gameObject.GetComponent<ProjectileAttributes>().impactPrefab, other.gameObject.transform.position, Quaternion.identity);
                 Instantiate(dustPrefab, other.gameObject.transform.position, Quaternion.identity);
                 Destroy(other.gameObject);
             }

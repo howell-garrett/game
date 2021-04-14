@@ -12,6 +12,7 @@ public class TacticsShoot : MonoBehaviour
     public GameObject projectilePrefab;
     public GameObject impactPrefab;
     public int damage = 150;
+    public int shotCost = 2;
 
     Vector3 velocity = new Vector3();
     Vector3 heading = new Vector3();
@@ -28,14 +29,10 @@ public class TacticsShoot : MonoBehaviour
 
     public void ComputeAdjList()
     {
-        List<List<Cell>> board = Grid.gameBoard;
-        for (int i = 0; i < board.Count; i++)
+        Cell[] cells = GameStateManager.FindAllCells();
+        foreach (Cell c in cells)
         {
-            for (int j = 0; j < board[i].Count; j++)
-            {
-                Cell c = board[i][j].GetComponent<Cell>();
-                c.FindNeighbors(0);
-            }
+            c.FindNeighbors(0);
         }
     }
 
@@ -76,17 +73,21 @@ public class TacticsShoot : MonoBehaviour
     public void SpawnBullet(GameObject enemy)
     {
         target = enemy;
-        Debug.Log(target);
         projectile = Instantiate(projectilePrefab, transform.position + (Vector3.up * .7f), Quaternion.identity);
+        ProjectileAttributes pa = projectile.GetComponent<ProjectileAttributes>();
+        pa.target = enemy.transform;
+        pa.velocity = velocity;
+        pa.heading = heading;
+        pa.damage = damage;
+        pa.impactPrefab = impactPrefab;
         if (!target.GetComponent<TacticsAttributes>().ReturnCurrentCell().isSafeWhenShot(attributes.ReturnCurrentCell())) //if enemy is not behind cover
         {
-            //target = enemy;
             projectile.GetComponent<ProjectileAttributes>().willMiss = false;
         } else
         {
             Cell coverCell = target.GetComponent<TacticsAttributes>().ReturnCurrentCell().GetCoverCell(attributes.ReturnCurrentCell());
-            target = coverCell.gameObject;
-            projectile.GetComponent<ProjectileAttributes>().willMiss = true;
+            pa.target = coverCell.transform;
+            pa.willMiss = true;
         }
         
     }
@@ -97,51 +98,66 @@ public class TacticsShoot : MonoBehaviour
         isShooting = true;
         GameStateManager.isAnyoneAttacking = true;
         attributes.anim.SetTrigger("Attack");
+        attributes.actionPoints -= shotCost;
+    }
+
+    public bool HasLineOfSight(Cell target)
+    {
+        GameStateManager.ChangeUnitsRaycastLayer(false);
+        GameStateManager.ChangeNeighboringCoverLayer(attributes.cell, false);
+        GameStateManager.ChangeNeighboringCoverLayer(target, false);
+        RaycastHit hit;
+        Vector3 targetVec = new Vector3(target.transform.position.x, target.transform.position.y + .5f, target.transform.position.z);
+        Vector3 rightVec = transform.position + Vector3.right + Vector3.up*.5f;
+        Vector3 leftVec = transform.position + Vector3.left + Vector3.up * .5f;
+        Vector3 upVec = transform.position + Vector3.up + Vector3.up * .5f;
+        Vector3 downVec = transform.position + Vector3.down + Vector3.up * .5f;
+        Vector3 currentVec = transform.position + Vector3.up * .5f;
+        bool final = false;
+        if (!Physics.Raycast(currentVec, targetVec - currentVec, out hit, Vector3.Distance(currentVec, targetVec)))
+        {
+            print("current cell clear shot");
+            final = true;
+        }
+        else if (!Physics.Raycast(rightVec, targetVec - rightVec, out hit, Vector3.Distance(rightVec, targetVec)))
+        {
+            print("right side clear shot");
+            final = true;
+        }
+        else if (!Physics.Raycast(leftVec, targetVec - leftVec, out hit, Vector3.Distance(leftVec, targetVec)))
+        {
+            print("Left side clear shot");
+            final = true;
+        }
+        else if (!Physics.Raycast(upVec, targetVec - upVec, out hit, Vector3.Distance(upVec, targetVec)))
+        {
+            print("up side clear shot");
+            final = true;
+        }
+        else if (!Physics.Raycast(downVec, targetVec - downVec, out hit, Vector3.Distance(downVec, targetVec)))
+        {
+            print("down side clear shot");
+            final = true;
+        }
+        GameStateManager.ChangeNeighboringCoverLayer(attributes.cell, true);
+        GameStateManager.ChangeNeighboringCoverLayer(target, true);
+        GameStateManager.ChangeUnitsRaycastLayer(true);
+        if (!final)
+        {
+            print("no line of sight");
+        }
+        return final;
     }
 
     public void Shoot()
     {
 
-        if (projectile == null)
+        if (GameObject.FindGameObjectsWithTag("Projectile").Length == 0)
         {
             GameStateManager.isAnyoneAttacking = false;
             GameStateManager.DeselectAllUnits();
-            attributes.actionPoints--;
-            attributes.shootSelected = false;
             isShooting = false;
             return;
         }
-
-        if (Vector3.Distance(projectile.transform.position, target.transform.position + (Vector3.up * .7f)) >= 0.05f)
-        {
-
-            CalculateHeading(target.transform.position);
-            SetHorizontalVelocity();
-
-            transform.forward = heading;
-            projectile.transform.position += velocity * Time.deltaTime;
-        } else
-        {
-            GameStateManager.isAnyoneAttacking = false;
-            GameStateManager.DeselectAllUnits();
-            Transform t = projectile.transform;
-            attributes.actionPoints--;
-            attributes.shootSelected = false;
-            Instantiate(impactPrefab, t.position, t.rotation);
-            Destroy(projectile);
-            isShooting = false;
-            target.GetComponent<TacticsAttributes>().TakeDamage(damage);
-        }
-    }
-
-    void CalculateHeading(Vector3 target)
-    {
-        heading = target - transform.position;
-        heading.Normalize();
-    }
-
-    void SetHorizontalVelocity()
-    {
-        velocity = heading * 3;
     }
 }
