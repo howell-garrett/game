@@ -100,7 +100,7 @@ public class TacticsShoot : MonoBehaviour
         attributes.anim.SetTrigger("Attack");
         attributes.actionPoints -= shotCost;
     }
-
+    //test
     public bool HasLineOfSight(Cell target)
     {
         GameStateManager.ChangeUnitsRaycastLayer(false);
