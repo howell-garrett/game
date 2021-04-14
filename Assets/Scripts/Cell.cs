@@ -1,10 +1,12 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class Cell : MonoBehaviour
 {
 
+ 
     [Header("Coordinates")]
     public int xCoordinate = 0;
     public int zCoordinate = 0;
@@ -19,12 +21,27 @@ public class Cell : MonoBehaviour
     public bool isOccupied;
     public bool isBlocked;
     public bool isInAttackRange;
+    public bool isInShootRange;
+    public bool isCovered;
     //BFS vars
     [Header("BFS Variables")]
     public List<Cell> adjacencyList;
     public bool visited;
     public Cell parent;
     public int distance;
+    public bool isFinalDestination;
+    public bool inWalkRange;
+    public GameObject cover;
+    public GameObject coverPrefab;
+
+    [Header("Cell Colors")]
+    public Material red;
+    public Material green;
+    public Material cyan;
+    public Material yellow;
+    public Material grey;
+    public Material white;
+    public Material magenta;
 
     public Cell(int x, int z)
     {
@@ -52,12 +69,30 @@ public class Cell : MonoBehaviour
     private void Start()
     {
         ResetBFSVariables();
+        SpawnCover();
     }
-
     // Update is called once per frame
     void Update()
     {
         UpdateCellColor();
+    }
+
+    private void OnMouseEnter()
+    {
+        if (!GameStateManager.isAnyoneMoving && 
+            GameStateManager.activeUnit && 
+            GameStateManager.activeUnit.GetComponent<TacticsAttributes>().movementSelected)
+            
+        {
+            
+            TacticsMove tm = GameStateManager.activeUnit.GetComponent<TacticsMove>();
+            if (tm.teamBounceCells.Count <= 0) {
+                tm.MoveToCell(this, false);
+            } else if (isSelectable) {
+                tm.DrawBounceLine(transform.position, false);
+            }
+            
+        }
     }
 
     public void ResetBFSVariables()
@@ -65,17 +100,28 @@ public class Cell : MonoBehaviour
 
         isCurrent = false;
         isTarget = false;
+        isFinalDestination = false;
         isSelectable = false;
         adjacencyList = new List<Cell>();
-
         adjacencyList.Clear();
         visited = false;
         parent = null;
         distance = 0;
         isInAttackRange = false;
+        isInShootRange = false;
     }
 
-    public void FindNeighbors(float jumpHeight)
+    void SpawnCover()
+    {
+        if (isCovered)
+        {
+            GameObject coverFab = Instantiate(coverPrefab, transform.position, Quaternion.identity);
+            coverFab.transform.position += new Vector3(0, coverFab.GetComponent<Collider>().bounds.extents.y, 0);
+            cover = coverFab;
+        }
+    }
+
+    public void FindNeighborsHex(float jumpHeight)
     {
         ResetBFSVariables();
 
@@ -104,11 +150,51 @@ public class Cell : MonoBehaviour
 
             if (temp[i] != null)
             {
-                if (xCoordinate== 1 && zCoordinate == 0 )
-                {
-                }
                 adjacencyList.Add(temp[i].GetComponent<Cell>());
             }
+        }
+    }
+
+    public List<Cell> GetAllNeighbors()
+    {
+        List<Cell> list = new List<Cell>();
+        if (GetNeighbor(Directions.Right))
+        {
+            list.Add(GetNeighbor(Directions.Right));
+        }
+        if (GetNeighbor(Directions.Left))
+        {
+            list.Add(GetNeighbor(Directions.Left));
+        }
+        if (GetNeighbor(Directions.Up))
+        {
+            list.Add(GetNeighbor(Directions.Up));
+        }
+        if (GetNeighbor(Directions.Up))
+        {
+            list.Add(GetNeighbor(Directions.Up));
+        }
+        return list;
+    }
+
+    public void FindNeighbors(float jumpHeight)
+    {
+        
+        if (xCoordinate < Grid.gameBoardWidth && Grid.gameBoard[xCoordinate+1][zCoordinate])
+        {
+            adjacencyList.Add(Grid.gameBoard[xCoordinate + 1][zCoordinate]);
+        }
+        if (xCoordinate > 0 && Grid.gameBoard[xCoordinate - 1][zCoordinate])
+        {
+            adjacencyList.Add(Grid.gameBoard[xCoordinate - 1][zCoordinate]);
+        }
+        if (zCoordinate < Grid.gameBoardHeight && Grid.gameBoard[xCoordinate][zCoordinate + 1])
+        {
+            adjacencyList.Add(Grid.gameBoard[xCoordinate][zCoordinate + 1]);
+        }
+        if (zCoordinate > 0 && Grid.gameBoard[xCoordinate][zCoordinate - 1])
+        {
+            adjacencyList.Add(Grid.gameBoard[xCoordinate][zCoordinate - 1]);
         }
     }
 
@@ -135,34 +221,44 @@ public class Cell : MonoBehaviour
     {
         if (isCurrent)
         {
-            GetComponent<Renderer>().material.color = Color.magenta;
+            GetComponent<Renderer>().enabled = true;
+            GetComponent<Renderer>().material = magenta;
         }
-        else if (isTarget)
+        else if (isTarget || isFinalDestination)
         {
-            GetComponent<Renderer>().material.color = Color.green;
+            GetComponent<Renderer>().enabled = true;
+            GetComponent<Renderer>().material = green;
         }
         else if (isSelectable)
         {
-            GetComponent<Renderer>().material.color = Color.red;
+            GetComponent<Renderer>().enabled = true;
+            GetComponent<Renderer>().material = red;
         }
         else if (isBlocked)
         {
-            GetComponent<Renderer>().material.color = Color.gray;
+            GetComponent<Renderer>().enabled = true;
+            GetComponent<Renderer>().material = grey;
         }
         else if(isInAttackRange)
         {
-            if (attachedUnit || true)
+            if (attachedUnit)
             {
-                GetComponent<Renderer>().material.color = Color.yellow;
+                GetComponent<Renderer>().enabled = true;
+                GetComponent<Renderer>().material = yellow;
             } else
             {
                 isInAttackRange = false;
-                GetComponent<Renderer>().material.color = Color.white;
+                GetComponent<Renderer>().enabled = false;
             }
+        }
+        else if (isInShootRange)
+        {
+            GetComponent<Renderer>().enabled = true;
+            GetComponent<Renderer>().material = cyan;
         }
         else
         {
-            GetComponent<Renderer>().material.color = Color.white;
+            GetComponent<Renderer>().enabled = false;
         }
     }
 
@@ -170,4 +266,112 @@ public class Cell : MonoBehaviour
         return "X: " + xCoordinate.ToString() + " Y: " + zCoordinate.ToString();
     }
 
+    public Cell GetNeighbor(Directions direction)
+    {
+        RaycastHit hit;
+        if (direction == Directions.Right)
+        {
+            if (xCoordinate < Grid.gameBoardWidth && Grid.gameBoard[xCoordinate + 1][zCoordinate])
+            {
+                return Grid.gameBoard[xCoordinate + 1][zCoordinate];
+            }
+            
+            return null;
+        }
+        if (direction == Directions.Left)
+        {
+            if (xCoordinate > 0 && Grid.gameBoard[xCoordinate - 1][zCoordinate])
+            {
+                return Grid.gameBoard[xCoordinate - 1][zCoordinate];
+            }
+            return null;
+        }
+        if (direction == Directions.Up)
+        {
+            if (zCoordinate < Grid.gameBoardHeight && Grid.gameBoard[xCoordinate][zCoordinate + 1])
+            {
+                return Grid.gameBoard[xCoordinate][zCoordinate + 1];
+            }
+            return null;
+        }
+        if (direction == Directions.Down)
+        {
+            if (zCoordinate > 0 && Grid.gameBoard[xCoordinate][zCoordinate - 1])
+            {
+                return Grid.gameBoard[xCoordinate][zCoordinate - 1];
+            }
+            return null;
+        }
+        return null;
+    }
+
+    public Cell GetCoverCell(Cell shotFrom)
+    {
+        if (shotFrom.xCoordinate > xCoordinate + 1)
+        {
+            if (GetNeighbor(Directions.Right) && GetNeighbor(Directions.Right).isCovered)
+            {
+                return GetNeighbor(Directions.Right);
+            }
+        }
+        if (shotFrom.xCoordinate < xCoordinate - 1)
+        {
+            if (GetNeighbor(Directions.Left) && GetNeighbor(Directions.Left).isCovered)
+            {
+                return GetNeighbor(Directions.Left);
+            }
+        }
+        if (shotFrom.zCoordinate > zCoordinate + 1)
+        {
+            if (GetNeighbor(Directions.Up) && GetNeighbor(Directions.Up).isCovered)
+            {
+                return GetNeighbor(Directions.Up);
+            }
+        }
+        if (shotFrom.zCoordinate < zCoordinate - 1)
+        {
+            if (GetNeighbor(Directions.Down) && GetNeighbor(Directions.Down).isCovered)
+            {
+                return GetNeighbor(Directions.Down);
+            }
+        }
+        return null;
+    }
+
+    public bool isSafeWhenShot(Cell shotFrom)
+    {
+        if (shotFrom.xCoordinate > xCoordinate + 1) {
+            if (GetNeighbor(Directions.Right) && GetNeighbor(Directions.Right).isCovered)
+            {
+                return true;
+            }
+        }
+        if (shotFrom.xCoordinate < xCoordinate - 1)
+        {
+            if (GetNeighbor(Directions.Left) && GetNeighbor(Directions.Left).isCovered)
+            {
+                return true;
+            }
+        }
+        if (shotFrom.zCoordinate > zCoordinate + 1)
+        {
+            if (GetNeighbor(Directions.Up) && GetNeighbor(Directions.Up).isCovered)
+            {
+                return true;
+            }
+        }
+        if (shotFrom.zCoordinate < zCoordinate - 1)
+        {
+            if (GetNeighbor(Directions.Down) && GetNeighbor(Directions.Down).isCovered)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+}
+
+public enum Directions
+{
+    Left, Right, Up, Down
 }

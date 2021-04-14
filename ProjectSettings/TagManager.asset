@@ -7,6 +7,10 @@ TagManager:
   - Cell
   - Enemy
   - Arrow
+  - Projectile
+  - PlayerEyes
+  - TurnText
+  - ShotCount
   layers:
   - Default
   - TransparentFX

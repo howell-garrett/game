@@ -1,13 +1,14 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class TurnManager : MonoBehaviour
 {
     public static bool isPlayerTurn = true;
 
     public static GameObject[] enemyUnits; 
-    public static GameObject[] playerUnits; 
+    public static GameObject[] playerUnits;
     // Start is called before the first frame update
     void Start()
     {
@@ -21,6 +22,10 @@ public class TurnManager : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.T))
         {
             NewPlayerTurn();
+        }
+        if (Input.GetKeyDown(KeyCode.V))
+        {
+            NewEnemyTurn();
         }
         if (isPlayerTurn)
         {
@@ -38,7 +43,7 @@ public class TurnManager : MonoBehaviour
         {
             for (int i = 0; i < enemyUnits.Length; i++)
             {
-                if (enemyUnits[i].GetComponent<EnemyMove>().actionPoints > 0)
+                if (enemyUnits[i].GetComponent<TacticsAttributes>().actionPoints > 0)
                 {
                     allGone = false;
                 }
@@ -51,7 +56,7 @@ public class TurnManager : MonoBehaviour
         {
             for (int i = 0; i < playerUnits.Length; i++)
             {
-                if (playerUnits[i].GetComponent<PlayerMove>().actionPoints > 0)
+                if (playerUnits[i].GetComponent<TacticsAttributes>().actionPoints > 0)
                 {
                     allGone = false;
                 }
@@ -66,7 +71,9 @@ public class TurnManager : MonoBehaviour
 
     public static void NewPlayerTurn()
     {
-       // GameStateManager.DeselectAllUnits();
+        GameObject.FindGameObjectWithTag("TurnText").GetComponent<Text>().text = "Player Turn";
+        //Debug.Log(GameStateManager.activeUnit.name);
+        // GameStateManager.DeselectAllUnits();
         isPlayerTurn = true;
         //GameObject[] playerUnitss = GameObject.FindGameObjectsWithTag("Player");
         for (int i = 0; i < playerUnits.Length; i++)
@@ -77,7 +84,7 @@ public class TurnManager : MonoBehaviour
     }
     public static void NewEnemyTurn()
     {
-        //GameStateManager.DeselectAllUnits();
+        GameObject.FindGameObjectWithTag("TurnText").GetComponent<Text>().text = "Enemy Turn";
         isPlayerTurn = false;
         for (int i = 0; i < enemyUnits.Length; i++)
         {

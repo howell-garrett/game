@@ -14,7 +14,6 @@ public class TacticsCamera : MonoBehaviour
     {
         transform.Rotate(Vector3.up, -90, Space.Self);
     }
-
     private void Update()
     {
         if (Input.GetKey(KeyCode.W))
@@ -36,6 +35,10 @@ public class TacticsCamera : MonoBehaviour
         {
             Vector3 pos = new Vector3(transform.position.x + Time.deltaTime * speed, transform.position.y, transform.position.z);
             transform.position = pos;
+        }
+        if (Input.GetKeyUp(KeyCode.Q)) {
+            RotateLeft();
+            //transform.RotateAround(transform.GetChild(0).transform.position, Vector3.up, 20 * Time.deltaTime);
         }
 
     }

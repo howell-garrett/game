@@ -1,11 +1,18 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
+using HighlightingSystem;
+using UnityEngine.SceneManagement;
 
 public class GameStateManager : MonoBehaviour
 {
     public static bool isPlayerTurn = true;
     public static float gravity = 9.8f;
+    public static bool isAnyoneMoving = false;
+    public static bool isAnyoneAttacking = false;
+    public static bool isAnyoneSelected = false;
+    public static GameObject activeUnit;
     public GameObject[] players;
     public GameObject[] enemies;
     // Start is called before the first frame update
@@ -13,6 +20,7 @@ public class GameStateManager : MonoBehaviour
     {
         players = GameObject.FindGameObjectsWithTag("Player");
         enemies = GameObject.FindGameObjectsWithTag("Enemy");
+        
     }
 
     // Update is called once per frame
@@ -26,83 +34,164 @@ public class GameStateManager : MonoBehaviour
         {
             DeselectAllUnits();
         }
-        SelectUnit();
+        if (!isAnyoneMoving || !isAnyoneAttacking)
+        {
+            SelectUnit();
+        }
 
     }
 
     public static void DeselectAllCells()
     {
-        foreach (List<Cell> list in Grid.gameBoard)
+        foreach (Cell c in GameStateManager.FindAllCells())
         {
-            foreach (Cell c in list)
-            {
-                c.ResetBFSVariables();
-            }
+            c.ResetBFSVariables();
         }
     }
-    public static void asdf()
+    public static void ResetCellInfoWithoutParent()
     {
-        foreach (List<Cell> list in Grid.gameBoard)
+        foreach (Cell c in GameStateManager.FindAllCells())
         {
-            foreach (Cell c in list)
-            {
-                c.isSelectable = false;
-                c.visited = false;
-                c.distance = 0;
-            }
+            c.isSelectable = false;
+            c.visited = false;
+            c.distance = 0;
         }
     }
 
     public static void DeselectAllUnits()
     {
+        isAnyoneSelected = false;
+        activeUnit = null;
         GameObject[] playerUnits = GameObject.FindGameObjectsWithTag("Player");
         for (int i = 0; i < playerUnits.Length; i++)
         {
             playerUnits[i].GetComponent<PlayerMove>().Deselect();
+            playerUnits[i].GetComponent<TacticsAttributes>().Deselect();
+            
         }
 
         GameObject[] enemyUnits = GameObject.FindGameObjectsWithTag("Enemy");
         for (int i = 0; i < enemyUnits.Length; i++)
         {
-            enemyUnits[i].GetComponent<EnemyMove>().isSelected = false;
+            enemyUnits[i].GetComponent<TacticsAttributes>().Deselect();
+            enemyUnits[i].GetComponent<EnemyMove>().Deselect();
+            enemyUnits[i].GetComponent<Highlighter>().constant = false;
         }
         DeselectAllCells();
     }
 
+    public static void ChangeNeighboringCoverLayer(Cell c, bool raycastWillHit)
+    {
+        int layer = 0;
+        if (!raycastWillHit)
+        {
+            layer = 2;
+        }
+        List<Cell> neighbors = c.GetAllNeighbors();
+        foreach (Cell item in neighbors)
+        {
+            if (item.cover)
+            {
+                item.cover.layer = layer;
+            }
+        }
+    }
+
+    public static void ChangeUnitsRaycastLayer(bool raycastWillHit)
+    {
+        int layer = 0;
+        if (!raycastWillHit)
+        {
+            layer = 2;
+        }
+        GameObject[] playerUnits = GameObject.FindGameObjectsWithTag("Player");
+        foreach (GameObject player in playerUnits)
+        {
+            player.layer = layer;
+        }
+        GameObject[] enemyUnits = GameObject.FindGameObjectsWithTag("Enemy");
+        foreach (GameObject enemy in enemyUnits)
+        {
+            enemy.layer = layer;
+        }
+    }
+
+    public static Cell FindCell(int x, int z)
+    {
+        foreach (Cell cell in FindAllCells())
+        {
+            if (cell.xCoordinate == x && cell.zCoordinate == z)
+            {
+                return cell;
+            }
+        }
+        return null;
+    }
+
+    public static Cell[] FindAllCells()
+    {
+        GameObject[] cellObjects = GameObject.FindGameObjectsWithTag("Cell");
+        Cell[] cells = new Cell[cellObjects.Length];
+        for (int i = 0; i < cellObjects.Length; i++)
+        {
+            cells[i] = cellObjects[i].GetComponent<Cell>();
+        }
+        return cells;
+    }
+
+    public static void SwapUnitLayer(int layer, List<GameObject> units)
+    {
+        for (int i = 0; i< units.Count; i++)
+		{
+            units[i].layer = layer;
+        }
+    }
+
     void SelectUnit()
     {
-        if (Input.GetMouseButtonUp(0))
+        if (Input.GetMouseButtonUp(0) && !EventSystem.current.IsPointerOverGameObject())
         {
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 
             RaycastHit hit;
             if (Physics.Raycast(ray, out hit))
             {
-                if (hit.collider.tag == "Player" && TurnManager.isPlayerTurn)
+                if (hit.collider.tag == "Player" && TurnManager.isPlayerTurn && !isAnyoneSelected)
                 {
-                    PlayerMove player = hit.collider.GetComponent<PlayerMove>();
-                    if (player.actionPoints > 0)
+                    TacticsAttributes player = hit.collider.GetComponent<TacticsAttributes>();
+                    if (player.actionPoints > 0 && !player.ReturnCurrentCell().isSelectable)
                     {
                         DeselectAllUnits();
+                        isAnyoneSelected = true;
+                        activeUnit = player.gameObject;
                         player.isSelected = true;
                     }
                 }
-                else if (hit.collider.tag == "Enemy" && !TurnManager.isPlayerTurn)
+                else if (hit.collider.tag == "Enemy" && !TurnManager.isPlayerTurn && !isAnyoneSelected)
                 {
-                    EnemyMove player = hit.collider.GetComponent<EnemyMove>();
-                    if (player.actionPoints > 0)
+                    TacticsAttributes player = hit.collider.GetComponent<TacticsAttributes>();
+                    if (player.actionPoints > 0 && !player.ReturnCurrentCell().isSelectable)
                     {
                         DeselectAllUnits();
+                        isAnyoneSelected = true;
+                        activeUnit = player.gameObject;
                         player.isSelected = true;
                     }
                 }
-                else if (hit.collider.tag == "Cell" )
+                else if (hit.collider.tag == "Cell")
                 {
-                    
                     if (!hit.collider.gameObject.GetComponent<Cell>().isSelectable)
                     {
-                        //asdf();
-                        DeselectAllUnits();
+                        if (!hit.collider.gameObject.GetComponent<Cell>().isInAttackRange)
+                        {
+                            if (!hit.collider.gameObject.GetComponent<Cell>().isInShootRange)
+                            {
+                                if (!isAnyoneAttacking && !isAnyoneMoving)
+                                {
+                                    DeselectAllUnits();
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -111,28 +200,8 @@ public class GameStateManager : MonoBehaviour
 
     void ResetBoard()
     {
-        TurnManager.isPlayerTurn = true;
-        DeselectAllUnits();
-        for (int i = 0; i < Grid.gameBoard.Count; i++)
-        {
-            for (int j = 0; j < Grid.gameBoard[i].Count; j++)
-            {
-                Grid.gameBoard[i][j].ResetBFSVariables();
-            }
-        }
-        for (int i = 0; i < enemies.Length; i++)
-        {
-            enemies[i].GetComponent<EnemyMove>().health = enemies[i].GetComponent<EnemyMove>().healthReset;
-            enemies[i].GetComponent<EnemyMove>().ResetAttributes();
-            enemies[i].GetComponent<EnemyMove>().ResetPosition();
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
 
-        }
-        for (int i = 0; i < players.Length; i++)
-        {
-            players[i].GetComponent<PlayerMove>().ResetAttributes();
-            players[i].GetComponent<PlayerMove>().ResetPosition();
-        }
-
-}
+    }
 
 }
