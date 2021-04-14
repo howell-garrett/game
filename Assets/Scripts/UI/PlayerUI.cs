@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using HighlightingSystem;
 
@@ -13,6 +14,7 @@ public class PlayerUI : MonoBehaviour
     public GameObject shotCount;
     InputField shotCountInputField;
     public Text actionPointCount;
+    public Text movementCostUI;
 
     // Start is called before the first frame update
     void Start()
@@ -128,18 +130,21 @@ public class PlayerUI : MonoBehaviour
 
     public void selectShoot()
     {
+        movementCostUI.gameObject.SetActive(false);
         ResetCheckedSelectable(false, false, true);
         shotCount.SetActive(true);
     }
 
     public void selectMovement()
     {
+        movementCostUI.gameObject.SetActive(true);
         ResetCheckedSelectable(true, false, false);
         shotCount.SetActive(false);
     }
 
     public void selectAttack()
     {
+        movementCostUI.gameObject.SetActive(false);
         ResetCheckedSelectable(false, true, false);
         shotCount.SetActive(false);
     }
@@ -176,59 +181,63 @@ public class PlayerUI : MonoBehaviour
         actionPointCount.text = "AP: " + ap;
     }
 
+    public void ClickCell(Cell c) {
+        if (c.isSelectable && !c.isCurrent)
+        {
+            pm.finalDestination = c;
+            c.isFinalDestination = true;
+            if (c.attachedUnit != null)
+            {
+                if (c.attachedUnit.tag != tag)
+                {
+
+                    pm.MoveToCell(c, true);
+                }
+                else if (pm.teamBounceCells.Count < attributes.maximumTeamBounces)
+                {
+                    pm.teamBounceCells.Add(c);
+                    pm.DrawBounceLine(c.transform.position, true);
+                    ShowSelectableTeamBounceCells(c);
+                }
+            }
+            else if (pm.teamBounceCells.Count > 0)
+            {
+                pm.MoveToCell(pm.teamBounceCells[0], true);
+                foreach (Cell item in pm.teamBounceCells)
+                {
+                    item.isTarget = true;
+                }
+            }
+            else
+            {
+                pm.MoveToCell(c, true);
+            }
+        }
+
+        else if (c.isInAttackRange && c.attachedUnit)
+        {
+            pa.Attack(c.attachedUnit.GetComponent<TacticsAttributes>());
+        }
+        else if (c.isInShootRange && c.attachedUnit)
+        {
+            ps.SpawnBullet(c.attachedUnit);
+            ps.isShooting = true;
+        }
+    }
+
     void CheckMouse()
     {
+        //Debug.Log(EventSystem.current.IsPointerOverGameObject());
         if (Input.GetMouseButtonUp(0))
         {
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 
             RaycastHit hit;
-            if (Physics.Raycast(ray, out hit))
+            if (Physics.Raycast(ray, out hit) && !EventSystem.current.IsPointerOverGameObject())
             {
                 if (hit.collider.tag == "Cell")
                 {
-                    Cell c = hit.collider.GetComponent<Cell>();
-                    if (c.isSelectable && !c.isCurrent)
-                    {
-                        pm.finalDestination = c;
-                        c.isFinalDestination = true;
-                        if (c.attachedUnit != null)
-                        {
-                            if (c.attachedUnit.tag != tag)
-                            {
-
-                                pm.MoveToCell(c, true);
-                            }
-                            else if (pm.teamBounceCells.Count < attributes.maximumTeamBounces)
-                            {
-                                pm.teamBounceCells.Add(c);
-                                pm.DrawBounceLine(c.transform.position, true);
-                                ShowSelectableTeamBounceCells(c);
-                            }
-                        }
-                        else if (pm.teamBounceCells.Count > 0)
-                        {
-                            pm.MoveToCell(pm.teamBounceCells[0], true);
-                            foreach (Cell item in pm.teamBounceCells)
-                            {
-                                item.isTarget = true;
-                            }
-                        }
-                        else
-                        {
-                            pm.MoveToCell(c, true);
-                        }
-                    }
-                    
-                    else if (c.isInAttackRange && c.attachedUnit)
-                    {
-                        pa.Attack(c.attachedUnit.GetComponent<TacticsAttributes>());
-                    }
-                    else if (c.isInShootRange && c.attachedUnit)
-                    {
-                        ps.SpawnBullet(c.attachedUnit);
-                        ps.isShooting = true;
-                    }
+                    ClickCell(hit.collider.GetComponent<Cell>());
                 }
                 else if (hit.collider.tag == tag && hit.collider.gameObject.name != name)
                 {
@@ -267,7 +276,6 @@ public class PlayerUI : MonoBehaviour
                         {
                             return;
                         }
-                        print("herhe");
                         count = 0;
                         StartCoroutine(ShootCoroutine(ps, c, howManyShots));
                         shotCountInputField.text = "0";

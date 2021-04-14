@@ -2603,7 +2603,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 454281782264490182, guid: bd6ee82c5e06b3f4f86113cbf8261ae1, type: 3}
       propertyPath: moveDistance
-      value: 2
+      value: 8
       objectReference: {fileID: 0}
     - target: {fileID: 539745478100655087, guid: bd6ee82c5e06b3f4f86113cbf8261ae1, type: 3}
       propertyPath: m_LocalPosition.x
@@ -8708,7 +8708,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: New Text
+  m_Text: Player Turn
 --- !u!222 &1299794728
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -13155,7 +13155,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1783915878}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 8.78, y: 1.14, z: 2.41}
+  m_LocalPosition: {x: 4.39, y: 3.77, z: -1.623}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -14883,6 +14883,14 @@ PrefabInstance:
     - target: {fileID: 3065775666342983101, guid: cbbba58709230d64d844bf6cb3a1a808, type: 3}
       propertyPath: yCoordinate
       value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 3065775666342983101, guid: cbbba58709230d64d844bf6cb3a1a808, type: 3}
+      propertyPath: isCovered
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3065775666342983101, guid: cbbba58709230d64d844bf6cb3a1a808, type: 3}
+      propertyPath: isBlocked
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3202881844690751128, guid: cbbba58709230d64d844bf6cb3a1a808, type: 3}
       propertyPath: m_Size.y

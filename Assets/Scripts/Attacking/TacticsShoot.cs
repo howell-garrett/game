@@ -100,7 +100,6 @@ public class TacticsShoot : MonoBehaviour
         attributes.anim.SetTrigger("Attack");
         attributes.actionPoints -= shotCost;
     }
-    //test
     public bool HasLineOfSight(Cell target)
     {
         GameStateManager.ChangeUnitsRaycastLayer(false);
@@ -111,8 +110,8 @@ public class TacticsShoot : MonoBehaviour
         Vector3 rightVec = transform.position + Vector3.right + Vector3.up*.5f;
         Vector3 leftVec = transform.position + Vector3.left + Vector3.up * .5f;
         Vector3 upVec = transform.position + Vector3.up + Vector3.up * .5f;
-        Vector3 downVec = transform.position + Vector3.down + Vector3.up * .5f;
-        Vector3 currentVec = transform.position + Vector3.up * .5f;
+        Vector3 downVec = transform.position + Vector3.back + Vector3.up * .5f;
+        Vector3 currentVec = transform.position + Vector3.forward * .5f;
         bool final = false;
         if (!Physics.Raycast(currentVec, targetVec - currentVec, out hit, Vector3.Distance(currentVec, targetVec)))
         {
@@ -136,6 +135,8 @@ public class TacticsShoot : MonoBehaviour
         }
         else if (!Physics.Raycast(downVec, targetVec - downVec, out hit, Vector3.Distance(downVec, targetVec)))
         {
+            print(downVec);
+            print(targetVec);
             print("down side clear shot");
             final = true;
         }

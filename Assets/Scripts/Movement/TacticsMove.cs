@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using HighlightingSystem;
 
 public class TacticsMove : MonoBehaviour
@@ -25,6 +26,7 @@ public class TacticsMove : MonoBehaviour
     public Cell finalDestination; //nice
     public TacticsAttributes attributes;
     public bool checkedSelectableCells = false;
+    public Text movementCostUI;
 
 
     Stack<Cell> path = new Stack<Cell>(); //for the path
@@ -230,6 +232,7 @@ public class TacticsMove : MonoBehaviour
         }
         pathRenderer.positionCount = path.Count;
         pathRenderer.SetPositions(CellsToPositions(path));
+        movementCostUI.text = "Cost: " + (pathRenderer.positionCount - 1);
     }
 
     Vector3[] CellsToPositions(Stack<Cell> stack)
@@ -349,13 +352,15 @@ public class TacticsMove : MonoBehaviour
 
     public void DrawBounceLine(Vector3 posn, bool addPoint)
     {
+       
         if (addPoint)
         {
             pathRenderer.positionCount = pathRenderer.positionCount + 1;
         }
-        pathRenderer.SetPosition(pathRenderer.positionCount - 1, posn);
+        pathRenderer.SetPosition(pathRenderer.positionCount - 1, posn); 
 
     }
+
 
     void CalculateHeading(Vector3 target)
     {
@@ -396,6 +401,7 @@ public class TacticsMove : MonoBehaviour
         finalDestination = null;
         GetComponent<Highlighter>().constant = false;
         GetComponent<LineRenderer>().enabled = false;
+        movementCostUI.gameObject.SetActive(false);
 
     }
 }
