@@ -909,7 +909,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: -7922807120541844731}
         m_TargetAssemblyTypeName: PlayerUI, Assembly-CSharp
-        m_MethodName: selectAttack
+        m_MethodName: SelectAttack
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -1811,7 +1811,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: -7922807120541844731}
         m_TargetAssemblyTypeName: PlayerUI, Assembly-CSharp
-        m_MethodName: selectShoot
+        m_MethodName: SelectShoot
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -2666,7 +2666,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: -7922807120541844731}
         m_TargetAssemblyTypeName: PlayerUI, Assembly-CSharp
-        m_MethodName: selectMovement
+        m_MethodName: SelectMovement
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -3029,7 +3029,6 @@ GameObject:
   - component: {fileID: 3903113057290443870}
   - component: {fileID: -6678575095357571418}
   - component: {fileID: 1459184557679204744}
-  - component: {fileID: 229825799616625860}
   m_Layer: 0
   m_Name: Jammo_Player
   m_TagString: Player
@@ -3188,10 +3187,12 @@ MonoBehaviour:
   zPositionCurrent: 1
   yPositionCurrent: 0
   maximumTeamBounces: 2
+  canClimb: 0
   cell: {fileID: 0}
   movementSelected: 0
   attackingSelected: 0
   shootSelected: 0
+  shootAbilitySelected: 0
   isSelected: 0
   hasBeenShotAt: 0
 --- !u!114 &-5978189300208935533
@@ -3212,6 +3213,7 @@ MonoBehaviour:
   shootRange: 8
   target: {fileID: 0}
   projectilePrefab: {fileID: 1390951589290470709, guid: 329ca55c6e4b62c438ccbf021e2f1b09, type: 3}
+  bigProjectilePrefab: {fileID: 0}
   impactPrefab: {fileID: 1161387918750820, guid: 354a5321132adc64ea182ed454d28ad2, type: 3}
   damage: 1
   shotCost: 2
@@ -3230,6 +3232,7 @@ MonoBehaviour:
   shotCount: {fileID: 234443804}
   actionPointCount: {fileID: 2046643605}
   movementCostUI: {fileID: 1887679480433777163}
+  usingShootAbility: 0
 --- !u!114 &3903113057290443870
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3401,22 +3404,6 @@ LineRenderer:
     generateLightingData: 0
   m_UseWorldSpace: 1
   m_Loop: 0
---- !u!114 &229825799616625860
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3541754002163558908}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5eb7efc69a42a014aaae2920b5db47fd, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  simpleTooltipStyle: {fileID: 11400000, guid: f1d1c287ded68be43934c42c517f05d2, type: 2}
-  infoLeft: Hello
-  infoRight: 
-  showing: 0
 --- !u!1 &3921334144448749991
 GameObject:
   m_ObjectHideFlags: 0

@@ -906,10 +906,12 @@ MonoBehaviour:
   zPositionCurrent: 4
   yPositionCurrent: 0
   maximumTeamBounces: 0
+  canClimb: 0
   cell: {fileID: 0}
   movementSelected: 0
   attackingSelected: 0
   shootSelected: 0
+  shootAbilitySelected: 0
   isSelected: 0
   hasBeenShotAt: 0
 --- !u!114 &2951598012177965450
@@ -927,6 +929,7 @@ MonoBehaviour:
   shotCount: {fileID: 1625293378416550653}
   actionPointCount: {fileID: 491900096}
   movementCostUI: {fileID: 4475374912322500894}
+  usingShootAbility: 0
 --- !u!114 &923240685514737361
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1062,7 +1065,8 @@ MonoBehaviour:
   shootRange: 5
   target: {fileID: 0}
   projectilePrefab: {fileID: 1390951589290470709, guid: 329ca55c6e4b62c438ccbf021e2f1b09, type: 3}
-  impactPrefab: {fileID: 1161387918750820, guid: 354a5321132adc64ea182ed454d28ad2, type: 3}
+  bigProjectilePrefab: {fileID: 0}
+  impactPrefab: {fileID: 0}
   damage: 3
   shotCost: 2
 --- !u!120 &-2927670624304102840
@@ -1783,7 +1787,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 2951598012177965450}
         m_TargetAssemblyTypeName: PlayerUI, Assembly-CSharp
-        m_MethodName: selectMovement
+        m_MethodName: SelectMovement
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -2025,7 +2029,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 2951598012177965450}
         m_TargetAssemblyTypeName: PlayerUI, Assembly-CSharp
-        m_MethodName: selectShoot
+        m_MethodName: SelectShoot
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -3241,7 +3245,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 2951598012177965450}
         m_TargetAssemblyTypeName: PlayerUI, Assembly-CSharp
-        m_MethodName: selectAttack
+        m_MethodName: SelectAttack
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}

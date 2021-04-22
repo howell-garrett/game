@@ -80,6 +80,10 @@ public class TurnManager : MonoBehaviour
         {
             playerUnits[i].GetComponent<PlayerMove>().ResetAttributes();
             playerUnits[i].GetComponent<PlayerMove>().Deselect();
+            if (playerUnits[i].GetComponent<AbilityAttributes>() != null)
+            {
+                playerUnits[i].GetComponent<AbilityAttributes>().DecrementAbilityCooldowns();
+            }
         }
     }
     public static void NewEnemyTurn()

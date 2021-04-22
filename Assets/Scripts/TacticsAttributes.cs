@@ -23,11 +23,13 @@ public class TacticsAttributes : MonoBehaviour
     public int zPositionCurrent;
     public int yPositionCurrent;
     public int maximumTeamBounces;
+    public bool canClimb = false;
     public Cell cell;
 
     public bool movementSelected = false;
     public bool attackingSelected = false;
     public bool shootSelected = false;
+    public bool shootAbilitySelected = false;
     public bool isSelected = false;
     
     public bool hasBeenShotAt = false;

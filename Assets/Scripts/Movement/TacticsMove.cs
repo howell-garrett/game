@@ -94,6 +94,7 @@ public class TacticsMove : MonoBehaviour
         {
             availableMoveSpots = attributes.actionPoints;
         }
+        int lowestY = 100;
         while (process.Count > 0)
         {
             Cell c = process.Dequeue();
@@ -122,8 +123,13 @@ public class TacticsMove : MonoBehaviour
                     {
                         if (!cell.visited)
                         {
-                            if (cell.yCoordinate <= attributes.yPositionCurrent)
+                            if (c.yCoordinate < lowestY) { lowestY = c.yCoordinate; }
+                            if ((cell.yCoordinate <= lowestY || attributes.canClimb))
                             {
+                                if (cell.parent)
+                                {
+                                    print(cell.parent);
+                                }
                                 if (cell.attachedUnit != null)
                                 {
                                     if (cell.attachedUnit.tag == tag)

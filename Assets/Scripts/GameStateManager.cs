@@ -57,9 +57,24 @@ public class GameStateManager : MonoBehaviour
             c.distance = 0;
         }
     }
+    public static void ResetCellBools()
+    {
+        foreach (Cell c in GameStateManager.FindAllCells())
+        {
+            c.isSelectable = false;
+            c.isInShootRange = false;
+            c.isInAttackRange = false;
+            c.isCurrent = false;
+            c.isTarget = false;
+        }
+    }
 
     public static void DeselectAllUnits()
     {
+        if (activeUnit)
+        {
+            activeUnit.GetComponent<BoxCollider>().enabled = true;
+        }
         isAnyoneSelected = false;
         activeUnit = null;
         GameObject[] playerUnits = GameObject.FindGameObjectsWithTag("Player");
@@ -147,6 +162,15 @@ public class GameStateManager : MonoBehaviour
         }
     }
 
+    void Select(TacticsAttributes unit)
+    {
+        DeselectAllUnits();
+        isAnyoneSelected = true;
+        activeUnit = unit.gameObject;
+        unit.isSelected = true;
+        unit.gameObject.GetComponent<BoxCollider>().enabled = false;
+    }
+
     void SelectUnit()
     {
         if (Input.GetMouseButtonUp(0) && !EventSystem.current.IsPointerOverGameObject())
@@ -161,10 +185,7 @@ public class GameStateManager : MonoBehaviour
                     TacticsAttributes player = hit.collider.GetComponent<TacticsAttributes>();
                     if (player.actionPoints > 0 && !player.ReturnCurrentCell().isSelectable)
                     {
-                        DeselectAllUnits();
-                        isAnyoneSelected = true;
-                        activeUnit = player.gameObject;
-                        player.isSelected = true;
+                        Select(player);
                     }
                 }
                 else if (hit.collider.tag == "Enemy" && !TurnManager.isPlayerTurn && !isAnyoneSelected)
@@ -172,10 +193,7 @@ public class GameStateManager : MonoBehaviour
                     TacticsAttributes player = hit.collider.GetComponent<TacticsAttributes>();
                     if (player.actionPoints > 0 && !player.ReturnCurrentCell().isSelectable)
                     {
-                        DeselectAllUnits();
-                        isAnyoneSelected = true;
-                        activeUnit = player.gameObject;
-                        player.isSelected = true;
+                        Select(player);
                     }
                 }
                 else if (hit.collider.tag == "Cell")

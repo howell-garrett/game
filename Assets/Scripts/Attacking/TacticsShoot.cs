@@ -10,6 +10,7 @@ public class TacticsShoot : MonoBehaviour
     public int shootRange = 5;
     public GameObject target;
     public GameObject projectilePrefab;
+    public GameObject bigProjectilePrefab;
     public GameObject impactPrefab;
     public int damage = 150;
     public int shotCost = 2;
@@ -36,10 +37,15 @@ public class TacticsShoot : MonoBehaviour
         }
     }
 
-    public void FindSelectableCells(Cell cellParam)
+    public void FindSelectableCells(Cell cellParam, bool usingShootAbility)
     {
+        GameStateManager.ResetCellBools();
         ComputeAdjList();
-
+        int fireRange = shootRange;
+        if (usingShootAbility)
+        {
+            fireRange = GetComponent<AbilityAttributes>().GetShootAbilityRange();
+        }
         Queue<Cell> process = new Queue<Cell>();
         process.Enqueue(cellParam);
         if (cellParam)
@@ -53,7 +59,7 @@ public class TacticsShoot : MonoBehaviour
             c.isInShootRange = true;
             attributes.selectableCells.Add(c);
 
-            if (c.distance < shootRange)
+            if (c.distance < fireRange)
             {
                 foreach (Cell cell in c.adjacencyList)
                 {
@@ -70,10 +76,16 @@ public class TacticsShoot : MonoBehaviour
     }
 
     GameObject projectile;
-    public void SpawnBullet(GameObject enemy)
+    public void SpawnBullet(GameObject enemy, bool isBigShot)
     {
         target = enemy;
-        projectile = Instantiate(projectilePrefab, transform.position + (Vector3.up * .7f), Quaternion.identity);
+        if (!isBigShot)
+        {
+            projectile = Instantiate(projectilePrefab, transform.position + (Vector3.up * .7f), Quaternion.identity);
+        } else
+        {
+            projectile = Instantiate(bigProjectilePrefab, transform.position + (Vector3.up * .7f), Quaternion.identity);
+        }
         ProjectileAttributes pa = projectile.GetComponent<ProjectileAttributes>();
         pa.target = enemy.transform;
         pa.velocity = velocity;
@@ -92,9 +104,9 @@ public class TacticsShoot : MonoBehaviour
         
     }
 
-    public void SetUpShot(GameObject targetUnit)
+    public void SetUpShot(GameObject targetUnit, bool isBigShot)
     {
-        SpawnBullet(targetUnit);
+        SpawnBullet(targetUnit, isBigShot);
         isShooting = true;
         GameStateManager.isAnyoneAttacking = true;
         attributes.anim.SetTrigger("Attack");
@@ -109,9 +121,9 @@ public class TacticsShoot : MonoBehaviour
         Vector3 targetVec = new Vector3(target.transform.position.x, target.transform.position.y + .5f, target.transform.position.z);
         Vector3 rightVec = transform.position + Vector3.right + Vector3.up*.5f;
         Vector3 leftVec = transform.position + Vector3.left + Vector3.up * .5f;
-        Vector3 upVec = transform.position + Vector3.up + Vector3.up * .5f;
+        Vector3 upVec = transform.position + Vector3.forward + Vector3.up * .5f;
         Vector3 downVec = transform.position + Vector3.back + Vector3.up * .5f;
-        Vector3 currentVec = transform.position + Vector3.forward * .5f;
+        Vector3 currentVec = transform.position + Vector3.up * .5f;
         bool final = false;
         if (!Physics.Raycast(currentVec, targetVec - currentVec, out hit, Vector3.Distance(currentVec, targetVec)))
         {
