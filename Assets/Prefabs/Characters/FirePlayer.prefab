@@ -1326,12 +1326,14 @@ MonoBehaviour:
   attackRange: 1
   currentCell: {fileID: 0}
   health: 10
+  status: 0
+  burnDamagePrefab: {fileID: 0}
   actionPointsReset: 0
   healthReset: 0
   selectableCells: []
   damageNumbers: {fileID: 569081961468117752, guid: be664ee06a067714ab140a69ef25561c, type: 3}
   anim: {fileID: 0}
-  xPositionCurrent: 2
+  xPositionCurrent: 1
   zPositionCurrent: 0
   yPositionCurrent: 0
   maximumTeamBounces: 6
@@ -1464,8 +1466,8 @@ LineRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1045849838614675384}
   m_Enabled: 1
-  m_CastShadows: 1
-  m_ReceiveShadows: 1
+  m_CastShadows: 0
+  m_ReceiveShadows: 0
   m_DynamicOccludee: 1
   m_MotionVectors: 0
   m_LightProbeUsage: 0
@@ -1567,7 +1569,10 @@ MonoBehaviour:
   flameWheelCooldown: 2
   flameWheel: {fileID: 7327100186650766853, guid: d5d96affbfe2c09419b44ff00fcb3b06, type: 3}
   flameWheelButton: {fileID: 792325542}
-  burnRange: 0
+  burnRange: 5
+  burnPrefab: {fileID: 1254724754748870, guid: d6fcf510c30f76448a769a00c616e9ce, type: 3}
+  burnCooldown: 1
+  burnButton: {fileID: 9060995191130442345}
 --- !u!1 &1061209199064632285
 GameObject:
   m_ObjectHideFlags: 0
@@ -6906,7 +6911,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: FlameWheel
+  m_Text: Burn
 --- !u!1 &8631829426359866485
 GameObject:
   m_ObjectHideFlags: 0

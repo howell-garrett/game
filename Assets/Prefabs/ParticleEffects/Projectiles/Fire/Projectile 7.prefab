@@ -18,7 +18,7 @@ GameObject:
   - component: {fileID: 2502323028699733360}
   m_Layer: 0
   m_Name: Projectile 7
-  m_TagString: Untagged
+  m_TagString: Projectile
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -4921,7 +4921,7 @@ SphereCollider:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1254724754748870}
   m_Material: {fileID: 0}
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_Enabled: 0
   serializedVersion: 2
   m_Radius: 0.05
@@ -5005,13 +5005,16 @@ MonoBehaviour:
   velocity: {x: 0, y: 0, z: 0}
   heading: {x: 0, y: 0, z: 0}
   impactPrefab: {fileID: 0}
-  speed: 15
+  possibleStatusEffect: 0
+  statusEffectChance: 0
+  speed: 8
   hitOffset: 0
   UseFirePointRotation: 0
   rotationOffset: {x: 0, y: 0, z: 0}
   hit: {fileID: 1845764070681338, guid: ac2312a3e32471549882f1a6da5568e6, type: 3}
   flash: {fileID: 1023540632372170, guid: 12c5a36b60a39734f80150bc3e23e850, type: 3}
   Detached: []
+  isBouncePorjectile: 0
 --- !u!1 &1800544799133088
 GameObject:
   m_ObjectHideFlags: 0

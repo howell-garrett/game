@@ -4804,6 +4804,8 @@ MonoBehaviour:
   velocity: {x: 0, y: 0, z: 0}
   heading: {x: 0, y: 0, z: 0}
   impactPrefab: {fileID: 0}
+  possibleStatusEffect: 0
+  statusEffectChance: 0
   speed: 15
   hitOffset: 0
   UseFirePointRotation: 0
@@ -4811,6 +4813,7 @@ MonoBehaviour:
   hit: {fileID: 0}
   flash: {fileID: 0}
   Detached: []
+  isBouncePorjectile: 0
 --- !u!1 &113030
 GameObject:
   m_ObjectHideFlags: 0
@@ -4827,7 +4830,7 @@ GameObject:
   - component: {fileID: 8637771377689178285}
   m_Layer: 0
   m_Name: NukeMissileFire
-  m_TagString: Untagged
+  m_TagString: Projectile
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -9725,13 +9728,16 @@ MonoBehaviour:
   velocity: {x: 0, y: 0, z: 0}
   heading: {x: 0, y: 0, z: 0}
   impactPrefab: {fileID: 0}
-  speed: 15
+  possibleStatusEffect: 0
+  statusEffectChance: 0
+  speed: 8
   hitOffset: 0
   UseFirePointRotation: 0
   rotationOffset: {x: 0, y: 0, z: 0}
   hit: {fileID: 1324124168371050, guid: 9eb3b1a11c610cd418079f132e291197, type: 3}
   flash: {fileID: 0}
   Detached: []
+  isBouncePorjectile: 0
 --- !u!1 &119082
 GameObject:
   m_ObjectHideFlags: 0

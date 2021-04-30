@@ -95,7 +95,7 @@ BoxCollider:
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Size: {x: 1, y: 1, z: 1}
+  m_Size: {x: 1.05, y: 1, z: 1.05}
   m_Center: {x: 0, y: 1, z: 0}
 --- !u!114 &3065775666342983101
 MonoBehaviour:
@@ -113,6 +113,7 @@ MonoBehaviour:
   zCoordinate: 0
   yCoordinate: 1
   attachedUnit: {fileID: 0}
+  attachedCover: {fileID: 0}
   isWalkable: 1
   isCurrent: 0
   isTarget: 0
@@ -121,6 +122,7 @@ MonoBehaviour:
   isBlocked: 0
   isInAttackRange: 0
   isInShootRange: 0
+  isInAbilityRange: 0
   isCovered: 0
   adjacencyList: []
   visited: 0
@@ -128,8 +130,8 @@ MonoBehaviour:
   distance: 0
   isFinalDestination: 0
   inWalkRange: 0
-  cover: {fileID: 0}
   coverPrefab: {fileID: 1799435524067490, guid: d3f0fd641e48029479051f84e7668e6e, type: 3}
+  cellRenderer: {fileID: 0}
   red: {fileID: 2100000, guid: 1d598b3d3a8ee644a86817ee2f429b11, type: 2}
   green: {fileID: 2100000, guid: 1f511b2ff4372db45ae8859475383a09, type: 2}
   cyan: {fileID: 2100000, guid: f32f1a3274f343948b00f9f42376d158, type: 2}
@@ -137,6 +139,7 @@ MonoBehaviour:
   grey: {fileID: 2100000, guid: d09aca319115c6e43991643c24010c35, type: 2}
   white: {fileID: 2100000, guid: dcbc3c64ab685fc4badb46ac5b7d6544, type: 2}
   magenta: {fileID: 2100000, guid: bd7cc70387fb26c44b0aa7f3135d477a, type: 2}
+  navy: {fileID: 2100000, guid: 39bbce78e63c57447939b73eb6e15cf2, type: 2}
 --- !u!1001 &5484554751594486686
 PrefabInstance:
   m_ObjectHideFlags: 0

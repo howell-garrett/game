@@ -49,7 +49,6 @@ public class PlayerUI : MonoBehaviour
             //HideUI();
             //return;
         }
-
         if (attributes.isSelected)
         {
             ShowUI();
@@ -266,9 +265,8 @@ public class PlayerUI : MonoBehaviour
                             pm.teamBounceCells.Add(c);
                             pm.DrawBounceLine(c.transform.position, true);
                             ShowSelectableTeamBounceCells(c);
-                        }
-                            
-                    } 
+                        }  
+                    }
                 }
                 else if (hit.collider.tag != tag && hit.collider.gameObject.GetComponent<TacticsAttributes>())
                 {
@@ -280,7 +278,7 @@ public class PlayerUI : MonoBehaviour
                     {
                         if (usingShootAbility)
                         {
-                            print("BURN ABILITY");
+                            GetComponent<AbilityAttributes>().PerformShootAbility(c.attachedUnit);
                             usingShootAbility = false;
                         }
                         else if (shotCountInputField.gameObject.activeSelf)
@@ -300,7 +298,8 @@ public class PlayerUI : MonoBehaviour
                                 return;
                             }
                             count = 0;
-                            StartCoroutine(ShootCoroutine(ps, c, howManyShots, false));
+                            ps.PerformShoot(c, howManyShots, false);
+                            ps.isShooting = true;
                             shotCountInputField.text = "0";
                             shotCount.SetActive(false);
                         } else
@@ -310,26 +309,14 @@ public class PlayerUI : MonoBehaviour
                                 return;
                             }
                             count = 0;
-                            StartCoroutine(ShootCoroutine(ps, c, 1, true));
+                            ps.isShooting = true;
+                            ps.PerformShoot(c, 1, true);
                             shotCountInputField.text = "0";
                             shotCount.SetActive(false);
                         }
                     }
                 }
             }
-        }
-    }
-
-    IEnumerator ShootCoroutine(TacticsShoot ps, Cell c, int howManyShots, bool isBigShot)
-    {
-        
-        while (count < howManyShots)
-        {
-            
-            yield return new WaitForSeconds(.1f);
-            ps.SetUpShot(c.attachedUnit, isBigShot);
-            timer = 0;
-            count++;
         }
     }
 

@@ -17,30 +17,16 @@ public class TacticsShoot : MonoBehaviour
 
     Vector3 velocity = new Vector3();
     Vector3 heading = new Vector3();
-    // Start is called before the first frame update
-    void Start()
-    {
-    }
 
-    // Update is called once per frame
-    void Update()
+    public void Init()
     {
-        
-    }
-
-    public void ComputeAdjList()
-    {
-        Cell[] cells = GameStateManager.FindAllCells();
-        foreach (Cell c in cells)
-        {
-            c.FindNeighbors(0);
-        }
+        attributes = GetComponent<TacticsAttributes>();
     }
 
     public void FindSelectableCells(Cell cellParam, bool usingShootAbility)
     {
         GameStateManager.ResetCellBools();
-        ComputeAdjList();
+        GameStateManager.ComputeAdjList();
         int fireRange = shootRange;
         if (usingShootAbility)
         {
@@ -57,6 +43,10 @@ public class TacticsShoot : MonoBehaviour
             Cell c = process.Dequeue();
 
             c.isInShootRange = true;
+            if (usingShootAbility)
+            {
+                c.isInAbilityRange = true;
+            }
             attributes.selectableCells.Add(c);
 
             if (c.distance < fireRange)
@@ -102,6 +92,30 @@ public class TacticsShoot : MonoBehaviour
             pa.willMiss = true;
         }
         
+    }
+
+    public void PerformShoot(Cell c, int howManyShots, bool isBigShot)
+    {
+        //Dynamic Dispatch wasn't working pain
+        if (GetComponent<EarthAttacks>())
+        {
+            GetComponent<EarthAttacks>().PerformShoot(c, howManyShots, isBigShot);
+            return;
+        }
+        StartCoroutine(ShootCoroutine(this, c, howManyShots, isBigShot));
+    }
+
+    IEnumerator ShootCoroutine(TacticsShoot ps, Cell c, int howManyShots, bool isBigShot)
+    {
+        int count = 0;
+        while (count < howManyShots)
+        {
+
+            ps.SetUpShot(c.attachedUnit, isBigShot);
+            count++;
+            yield return new WaitForSeconds(.1f);
+            //timer = 0;
+        }
     }
 
     public void SetUpShot(GameObject targetUnit, bool isBigShot)
