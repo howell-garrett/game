@@ -558,6 +558,7 @@ RectTransform:
   - {fileID: 2469175330435846654}
   - {fileID: 9078295637419723068}
   - {fileID: 9078295639366144181}
+  - {fileID: 7339947035860418633}
   - {fileID: 2439061116693447088}
   - {fileID: 824282770006174673}
   m_Father: {fileID: 8827365812438097735}
@@ -1064,6 +1065,138 @@ Transform:
   m_Father: {fileID: 807250355875269631}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1774754689315721536
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7339947035860418633}
+  - component: {fileID: 3430521019089058130}
+  - component: {fileID: 8168217673505826520}
+  - component: {fileID: 2291520686682107310}
+  m_Layer: 0
+  m_Name: AirTornado
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &7339947035860418633
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1774754689315721536}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children:
+  - {fileID: 6016926024423323028}
+  m_Father: {fileID: 4746051814410886523}
+  m_RootOrder: 6
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 0.5}
+  m_AnchorMax: {x: 0, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: -120}
+  m_SizeDelta: {x: 73, y: 30}
+  m_Pivot: {x: 0, y: 0.5}
+--- !u!222 &3430521019089058130
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1774754689315721536}
+  m_CullTransparentMesh: 0
+--- !u!114 &8168217673505826520
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1774754689315721536}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
+  m_Type: 1
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!114 &2291520686682107310
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1774754689315721536}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Navigation:
+    m_Mode: 3
+    m_SelectOnUp: {fileID: 0}
+    m_SelectOnDown: {fileID: 0}
+    m_SelectOnLeft: {fileID: 0}
+    m_SelectOnRight: {fileID: 0}
+  m_Transition: 1
+  m_Colors:
+    m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
+    m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
+    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
+    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
+    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
+    m_ColorMultiplier: 1
+    m_FadeDuration: 0.1
+  m_SpriteState:
+    m_HighlightedSprite: {fileID: 0}
+    m_PressedSprite: {fileID: 0}
+    m_SelectedSprite: {fileID: 0}
+    m_DisabledSprite: {fileID: 0}
+  m_AnimationTriggers:
+    m_NormalTrigger: Normal
+    m_HighlightedTrigger: Highlighted
+    m_PressedTrigger: Pressed
+    m_SelectedTrigger: Selected
+    m_DisabledTrigger: Disabled
+  m_Interactable: 1
+  m_TargetGraphic: {fileID: 8168217673505826520}
+  m_OnClick:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 5045540420253176185}
+        m_TargetAssemblyTypeName: AirAttacks, Assembly-CSharp
+        m_MethodName: ShowAirTornadoRange
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &1894861066467026393
 GameObject:
   m_ObjectHideFlags: 0
@@ -3609,6 +3742,7 @@ Transform:
   - {fileID: 3285515039669631794}
   - {fileID: 7077824804701753011}
   - {fileID: 3431313179842922368}
+  - {fileID: 2215064983896059681}
   m_Father: {fileID: 5845352454451527719}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -4037,6 +4171,85 @@ Transform:
   m_Father: {fileID: 6019375812129002656}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &5107161684059173212
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6016926024423323028}
+  - component: {fileID: 5866269346799265859}
+  - component: {fileID: 880932366502008279}
+  m_Layer: 0
+  m_Name: Text
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &6016926024423323028
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5107161684059173212}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 7339947035860418633}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!222 &5866269346799265859
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5107161684059173212}
+  m_CullTransparentMesh: 0
+--- !u!114 &880932366502008279
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5107161684059173212}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5f7201a12d95ffc409449d95f23cf332, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 0.19607843, g: 0.19607843, b: 0.19607843, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_FontData:
+    m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
+    m_FontSize: 14
+    m_FontStyle: 0
+    m_BestFit: 0
+    m_MinSize: 10
+    m_MaxSize: 40
+    m_Alignment: 4
+    m_AlignByGeometry: 0
+    m_RichText: 1
+    m_HorizontalOverflow: 0
+    m_VerticalOverflow: 0
+    m_LineSpacing: 1
+  m_Text: Tornado
 --- !u!1 &5115568918700413488
 GameObject:
   m_ObjectHideFlags: 0
@@ -4434,6 +4647,7 @@ GameObject:
   - component: {fileID: 6821962350974482958}
   - component: {fileID: 7619111279212928288}
   - component: {fileID: 5045540420253176185}
+  - component: {fileID: 160536958}
   m_Layer: 0
   m_Name: AirPlayer
   m_TagString: Player
@@ -4498,7 +4712,10 @@ Animator:
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
   m_LinearVelocityBlending: 0
-  m_WarningMessage: 
+  m_WarningMessage: "\nBinding warning: Some generic clip(s) animate transforms that
+    are already bound by a Humanoid avatar. These transforms can only be changed
+    by Humanoid clips.\n\tTransform 'mixamorig:LeftArm'\n\tTransform 'mixamorig:LeftForeArm'\n\tFrom
+    animation clip 'test'"
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorControllerStateOnDisable: 0
@@ -4590,8 +4807,8 @@ MonoBehaviour:
   selectableCells: []
   damageNumbers: {fileID: 569081961468117752, guid: be664ee06a067714ab140a69ef25561c, type: 3}
   anim: {fileID: 0}
-  xPositionCurrent: 3
-  zPositionCurrent: 1
+  xPositionCurrent: 7
+  zPositionCurrent: 0
   yPositionCurrent: 0
   maximumTeamBounces: 2
   canClimb: 0
@@ -4619,7 +4836,7 @@ MonoBehaviour:
   isShooting: 0
   shootRange: 8
   target: {fileID: 0}
-  projectilePrefab: {fileID: 128572, guid: ede8ae99c87d33845bf7de972833f96b, type: 3}
+  projectilePrefab: {fileID: 1714188259017162, guid: 379e4bebf189ee147a52e73ab8a9a066, type: 3}
   bigProjectilePrefab: {fileID: 0}
   impactPrefab: {fileID: 1161387918750820, guid: 354a5321132adc64ea182ed454d28ad2, type: 3}
   damage: 1
@@ -4823,6 +5040,32 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6323f81366e094e46805f55a3bcaa705, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  airPushDistance: 4
+  isListeningForAirPush: 0
+  pushDirection: 0
+  windPrefab: {fileID: 3048655864661103795, guid: a44356fe2069c8142bc6f293433dea81, type: 3}
+  tornadoRange: 4
+  tornadoDamage: 0
+  tornadoEdgeDamage: 0
+  tornadoPrefab: {fileID: 0}
+  airShotPrefab: {fileID: 0}
+  castPoint: {fileID: 0}
+--- !u!54 &160536958
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5537813145321090388}
+  serializedVersion: 2
+  m_Mass: 1
+  m_Drag: 0
+  m_AngularDrag: 0.05
+  m_UseGravity: 1
+  m_IsKinematic: 1
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
 --- !u!1 &5540541831315659057
 GameObject:
   m_ObjectHideFlags: 0
@@ -5075,7 +5318,7 @@ RectTransform:
   - {fileID: 9151850649150101627}
   - {fileID: 3714831329372302175}
   m_Father: {fileID: 4746051814410886523}
-  m_RootOrder: 7
+  m_RootOrder: 8
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0.5}
   m_AnchorMax: {x: 0, y: 0.5}
@@ -5175,11 +5418,11 @@ RectTransform:
   m_Children:
   - {fileID: 1433442512649695715}
   m_Father: {fileID: 4746051814410886523}
-  m_RootOrder: 6
+  m_RootOrder: 7
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0.5}
   m_AnchorMax: {x: 0, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: -120}
+  m_AnchoredPosition: {x: 0, y: -150}
   m_SizeDelta: {x: 73, y: 30}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!222 &149843792201016755
@@ -5739,6 +5982,36 @@ SkinnedMeshRenderer:
     m_Center: {x: 0.000000006519258, y: 0.014158193, z: -0.0038883623}
     m_Extent: {x: 0.030456163, y: 0.0014758785, z: 0.0014131323}
   m_DirtyAABB: 0
+--- !u!1 &6703546512910822127
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2215064983896059681}
+  m_Layer: 0
+  m_Name: CastPoint
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2215064983896059681
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6703546512910822127}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0.0006, y: 0.0057, z: 0.0028}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 807250355875269631}
+  m_RootOrder: 4
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &6784669220874458850
 GameObject:
   m_ObjectHideFlags: 0
@@ -7553,11 +7826,11 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 5045540420253176185}
         m_TargetAssemblyTypeName: AirAttacks, Assembly-CSharp
-        m_MethodName: PerformShootAbility
-        m_Mode: 2
+        m_MethodName: TriggerAirPushAnim
+        m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.GameObject, UnityEngine
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 

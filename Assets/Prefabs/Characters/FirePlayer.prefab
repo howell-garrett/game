@@ -1177,6 +1177,7 @@ GameObject:
   - component: {fileID: 2086754086856747234}
   - component: {fileID: 3163035482023284684}
   - component: {fileID: 1239025604}
+  - component: {fileID: 758836305}
   m_Layer: 0
   m_Name: FirePlayer
   m_TagString: Player
@@ -1241,7 +1242,10 @@ Animator:
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
   m_LinearVelocityBlending: 0
-  m_WarningMessage: 
+  m_WarningMessage: "\nBinding warning: Some generic clip(s) animate transforms that
+    are already bound by a Humanoid avatar. These transforms can only be changed
+    by Humanoid clips.\n\tTransform 'mixamorig:LeftArm'\n\tTransform 'mixamorig:LeftForeArm'\n\tFrom
+    animation clip 'test'"
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorControllerStateOnDisable: 0
@@ -1456,7 +1460,7 @@ BoxCollider:
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Size: {x: 1, y: 1.6, z: 1}
+  m_Size: {x: 0.67, y: 1.6, z: 0.35}
   m_Center: {x: 0, y: 0.85, z: 0}
 --- !u!120 &3163035482023284684
 LineRenderer:
@@ -1477,7 +1481,7 @@ LineRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: f7263a746e9063d4b847508a383a8145, type: 2}
+  - {fileID: 15303, guid: 0000000000000000f000000000000000, type: 0}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -1573,6 +1577,24 @@ MonoBehaviour:
   burnPrefab: {fileID: 1254724754748870, guid: d6fcf510c30f76448a769a00c616e9ce, type: 3}
   burnCooldown: 1
   burnButton: {fileID: 9060995191130442345}
+  fireShotPrefab: {fileID: 1254724754748870, guid: ead2eb1ec6d8ee54fa5d36c7f5e30eef, type: 3}
+  castPoint: {fileID: 2037755924320759173}
+--- !u!54 &758836305
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1045849838614675384}
+  serializedVersion: 2
+  m_Mass: 1
+  m_Drag: 0
+  m_AngularDrag: 0.05
+  m_UseGravity: 1
+  m_IsKinematic: 1
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
 --- !u!1 &1061209199064632285
 GameObject:
   m_ObjectHideFlags: 0
@@ -6738,6 +6760,36 @@ Transform:
   m_Father: {fileID: 1693481063763528695}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &8039788623327446502
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2037755924320759173}
+  m_Layer: 0
+  m_Name: CastPoint
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2037755924320759173
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8039788623327446502}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0.0005, y: 0.0061, z: 0.0024}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 5290098711179565331}
+  m_RootOrder: 4
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &8417249355162653725
 GameObject:
   m_ObjectHideFlags: 0
@@ -7562,6 +7614,7 @@ Transform:
   - {fileID: 8052902126749936094}
   - {fileID: 2333046562913950815}
   - {fileID: 7910467725573199212}
+  - {fileID: 2037755924320759173}
   m_Father: {fileID: 1389083692702782155}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}

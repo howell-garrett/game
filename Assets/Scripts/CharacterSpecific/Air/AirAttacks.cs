@@ -5,10 +5,22 @@ using UnityEngine.EventSystems;
 
 public class AirAttacks : MonoBehaviour, AbilityAttributes
 {
+    [Header("Air Push")]
     public int airPushDistance;
     public bool isListeningForAirPush;
     public Directions pushDirection;
     public GameObject windPrefab;
+
+    [Header("Air Tornado")]
+    public int tornadoRange;
+    public int tornadoDamage;
+    public int tornadoEdgeDamage;
+    public GameObject tornadoPrefab;
+    bool isListeningForAirTornado;
+
+    [Header("Standard Shot")]
+    public GameObject airShotPrefab;
+    public Transform castPoint;
     //for every push
     float pushSpeed;
     bool willGoOutOfBounds;
@@ -25,6 +37,8 @@ public class AirAttacks : MonoBehaviour, AbilityAttributes
         pushSpeed = 1;
         willFall = false;
         hasTurned = new HashSet<TacticsAttributes>();
+        isListeningForAirPush = false;
+        isListeningForAirTornado = false;
     }
 
     // Update is called once per frame
@@ -34,6 +48,10 @@ public class AirAttacks : MonoBehaviour, AbilityAttributes
         if (isListeningForAirPush)
         {
             ListenForAirPush();
+        }
+        else if (isListeningForAirTornado)
+        {
+            ListenForTornado();
         }
     }
 
@@ -54,6 +72,7 @@ public class AirAttacks : MonoBehaviour, AbilityAttributes
     {
         //throw new System.NotImplementedException();
         isListeningForAirPush = false;
+        isListeningForAirTornado = false;
     }
 
     public int GetShootAbilityRange()
@@ -61,9 +80,87 @@ public class AirAttacks : MonoBehaviour, AbilityAttributes
         throw new System.NotImplementedException();
     }
 
+    GameObject tornadoTarget;
     public void PerformShootAbility(GameObject g)
     {
-        
+        isListeningForAirTornado = false;
+        tornadoTarget = g;
+        attributes.anim.SetTrigger("tornado");
+    }
+
+    public void PerformTornado()
+    {
+        StartCoroutine(TornadoCoroutine());
+    }
+
+    public void PerformShoot(Cell c, int howManyShots, bool isBigShot)
+    {
+        StartCoroutine(ShootCorountine(c, howManyShots, isBigShot));
+    }
+
+    IEnumerator ShootCorountine (Cell target, int howManyShots, bool isBigShot)
+    {
+        yield return attributes.TurnTowardsTarget(target.transform.position);
+        attributes.anim.SetTrigger("Attack");
+        yield return new WaitForSeconds(.7f);
+        for (int i = 0; i < howManyShots; i++)
+        {
+            GameObject projectile = Instantiate(airShotPrefab, castPoint.position, Quaternion.identity);
+            projectile.GetComponent<ProjectileAttributes>().target = target.attachedUnit.transform;
+            yield return new WaitForSeconds(.1f);
+        }
+    }
+
+    IEnumerator TornadoCoroutine()
+    {
+        Destroy(Instantiate(tornadoPrefab, tornadoTarget.transform.position, Quaternion.identity), 5);
+        TacticsAttributes targetAttributes = tornadoTarget.GetComponent<TacticsAttributes>();
+        yield return new WaitForSeconds(0.1f);
+        targetAttributes.TakeDamage(tornadoDamage);
+        yield return new WaitForSeconds(0.25f);
+        foreach (Cell c in targetAttributes.cell.GetAllNeighbors())
+        {
+            if (c.yCoordinate == targetAttributes.cell.yCoordinate && c.attachedUnit && c != attributes.cell)
+            {
+                c.attachedUnit.GetComponent<TacticsAttributes>().TakeDamage(tornadoEdgeDamage);
+            }
+        }
+        yield return new WaitForSeconds(2);
+        GameStateManager.DeselectAllUnits();
+    }
+
+    public void ShowAirTornadoRange()
+    {
+        isListeningForAirTornado = true;
+        GameStateManager.ResetCellBools();
+        GameStateManager.ComputeAdjList();
+        Queue<Cell> process = new Queue<Cell>();
+        process.Enqueue(attributes.cell);
+        if (attributes.cell)
+        {
+            attributes.cell.visited = true;
+        }
+        while (process.Count > 0)
+        {
+            Cell c = process.Dequeue();
+            c.isInAbilityRange = true;
+            attributes.selectableCells.Add(c);
+            if (c.distance < tornadoRange)
+            {
+                print("c dist < range");
+                foreach (Cell cell in c.adjacencyList)
+                {
+                    print("foreach cell in adj list");
+                    if (!cell.visited)
+                    {
+                        cell.parent = c;
+                        cell.visited = true;
+                        cell.distance = 1 + c.distance;
+                        process.Enqueue(cell);
+                    }
+                }
+            }
+        }
     }
 
     public void ShowDirection(string dir)
@@ -177,7 +274,7 @@ public class AirAttacks : MonoBehaviour, AbilityAttributes
         Vector3 prev = points.Peek();
         bool animHasTriggered = false;
         unit.GetComponent<Animator>().SetTrigger("blown");
-        yield return new WaitForSeconds(.7f);
+        yield return new WaitForSeconds(.6f);
         while (points.Count > 0)
         {
             if (points.Count <= points.Count / 2 && !willFall)
@@ -202,7 +299,7 @@ public class AirAttacks : MonoBehaviour, AbilityAttributes
             } else
             {
                 points.Dequeue();
-                if (prev.y > points.Peek().y & !animHasTriggered)
+                if (points.Count > 0 && prev.y > points.Peek().y && !animHasTriggered)
                 {
                     animHasTriggered = true;
                     unit.GetComponent<Animator>().SetTrigger("fall");
@@ -227,11 +324,11 @@ public class AirAttacks : MonoBehaviour, AbilityAttributes
         {
             unit.transform.position = destinationCell.transform.position;
         }
-        
         Reset();
         GameStateManager.isAnyoneAttacking = false;
         GameStateManager.SwapUnitTriggerColliders(false);
-        print("arrived");
+        yield return new WaitForSeconds(0.5f);
+        unit.GetComponent<Animator>().SetTrigger("windStops");
     }
 
     Queue<Vector3> GetPathPoints(Cell start)
@@ -322,6 +419,44 @@ public class AirAttacks : MonoBehaviour, AbilityAttributes
                         {
                             ta.FaceDirection(GameStateManager.GetOppositeDirection(pushDirection));
                             hasTurned.Add(ta);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    HashSet<Cell> willBeDamaged = new HashSet<Cell>();
+    public void ListenForTornado()
+    {
+        foreach (Cell c in willBeDamaged)
+        {
+            c.isInDamageRange = false;
+        }
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        RaycastHit hit;
+        if (Physics.Raycast(ray, out hit) && !EventSystem.current.IsPointerOverGameObject())
+        {
+            if (hit.collider.GetComponent<TacticsAttributes>() && hit.collider.tag != tag)
+            {
+                Cell c = hit.collider.GetComponent<TacticsAttributes>().cell;
+                if (Input.GetMouseButtonUp(0))
+                {
+                    TacticsAttributes ta = hit.collider.GetComponent<TacticsAttributes>();
+                    if (c.isInAbilityRange)
+                    {
+                        PerformShootAbility(hit.collider.gameObject);
+                    }
+                } else
+                {
+                    c.isInDamageRange = true;
+                    willBeDamaged.Add(c);
+                    foreach(Cell cell in c.GetAllNeighbors())
+                    {
+                        if (cell.yCoordinate == c.yCoordinate && c != attributes.cell)
+                        {
+                            willBeDamaged.Add(cell);
+                            cell.isInDamageRange = true;
                         }
                     }
                 }

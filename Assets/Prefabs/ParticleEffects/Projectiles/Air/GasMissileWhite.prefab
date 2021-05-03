@@ -9601,7 +9601,7 @@ MonoBehaviour:
   impactPrefab: {fileID: 0}
   possibleStatusEffect: 0
   statusEffectChance: 0
-  speed: 3
+  speed: 5
   hitOffset: 0
   UseFirePointRotation: 0
   rotationOffset: {x: 0, y: 0, z: 0}

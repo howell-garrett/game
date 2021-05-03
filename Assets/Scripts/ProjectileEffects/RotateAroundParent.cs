@@ -15,6 +15,6 @@ public class RotateAroundParent : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        transform.RotateAround(transform.parent.transform.position, transform.forward, speed);
+        transform.RotateAround(transform.parent.transform.position, direction, speed);
     }
 }

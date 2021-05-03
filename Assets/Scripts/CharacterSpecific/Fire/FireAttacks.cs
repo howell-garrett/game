@@ -5,6 +5,7 @@ using UnityEngine.UI;
 
 public class FireAttacks : MonoBehaviour, AbilityAttributes
 {
+    TacticsAttributes attributes;
     [Header("Flame wheel variables")]
     public int flameWheelCooldown;
     int flameWheelCooldownCurrent;
@@ -16,11 +17,15 @@ public class FireAttacks : MonoBehaviour, AbilityAttributes
     public int burnCooldown;
     int burnCooldownCurrent;
     public Button burnButton;
+    [Header("Standard Shot")]
+    public GameObject fireShotPrefab;
+    public Transform castPoint;
 
     private void Start()
     {
         burnCooldownCurrent = 0;
         flameWheelCooldownCurrent = 0;
+        attributes = GetComponent<TacticsAttributes>();
     }
 
     public void DecrementAbilityCooldowns() {
@@ -72,6 +77,24 @@ public class FireAttacks : MonoBehaviour, AbilityAttributes
         flameWheelCooldownCurrent = flameWheelCooldown;
         yield return new WaitForSeconds(0.1f);
         GameStateManager.DeselectAllUnits();
+    }
+
+    public void PerformShoot(Cell c, int howManyShots, bool isBigShot)
+    {
+        StartCoroutine(ShootCorountine(c, howManyShots, isBigShot));
+    }
+
+    IEnumerator ShootCorountine(Cell target, int howManyShots, bool isBigShot)
+    {
+        yield return attributes.TurnTowardsTarget(target.transform.position);
+        attributes.anim.SetTrigger("Attack");
+        yield return new WaitForSeconds(.7f);
+        for (int i = 0; i < howManyShots; i++)
+        {
+            GameObject projectile = Instantiate(fireShotPrefab, castPoint.position, Quaternion.identity);
+            projectile.GetComponent<ProjectileAttributes>().target = target.attachedUnit.transform;
+            yield return new WaitForSeconds(.1f);
+        }
     }
 
     public void ShowBurnRange()

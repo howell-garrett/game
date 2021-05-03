@@ -97,11 +97,13 @@ public class TacticsShoot : MonoBehaviour
     public void PerformShoot(Cell c, int howManyShots, bool isBigShot)
     {
         //Dynamic Dispatch wasn't working pain
-        if (GetComponent<EarthAttacks>())
+        if (GetComponent<AbilityAttributes>() is AbilityAttributes)
         {
-            GetComponent<EarthAttacks>().PerformShoot(c, howManyShots, isBigShot);
+            //GetComponent<EarthAttacks>().PerformShoot(c, howManyShots, isBigShot);
+            GetComponent<AbilityAttributes>().PerformShoot(c, howManyShots, isBigShot);
             return;
         }
+        print("subuwu");
         StartCoroutine(ShootCoroutine(this, c, howManyShots, isBigShot));
     }
 

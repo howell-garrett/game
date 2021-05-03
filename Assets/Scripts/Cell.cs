@@ -25,6 +25,7 @@ public class Cell : MonoBehaviour
     public bool isInShootRange;
     public bool isInAbilityRange;
     public bool isCovered;
+    public bool isInDamageRange;
     //BFS vars
     [Header("BFS Variables")]
     public List<Cell> adjacencyList;
@@ -129,6 +130,7 @@ public class Cell : MonoBehaviour
         isInAttackRange = false;
         isInShootRange = false;
         isInAbilityRange = false;
+        isInDamageRange = false;
     }
 
     void SpawnCover()
@@ -285,7 +287,18 @@ public class Cell : MonoBehaviour
         }
         else if (isInAbilityRange)
         {
-            cellRenderer.material = navy;
+            if (isInDamageRange)
+            {
+                cellRenderer.material = red;
+                cellRenderer.enabled = true;
+            } else
+            {
+                cellRenderer.material = navy;
+                cellRenderer.enabled = true;
+            }
+        } else if (isInDamageRange)
+        {
+            cellRenderer.material = red;
             cellRenderer.enabled = true;
         }
         else
