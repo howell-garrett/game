@@ -10,6 +10,8 @@ public class TacticsAttributes : MonoBehaviour
 
     [Header("Attack and Defense Attributes")]
     public float health = 10;
+    public Status status;
+    public GameObject burnDamagePrefab;
 
     [HideInInspector]
     public int actionPointsReset;
@@ -23,11 +25,13 @@ public class TacticsAttributes : MonoBehaviour
     public int zPositionCurrent;
     public int yPositionCurrent;
     public int maximumTeamBounces;
+    public bool canClimb = false;
     public Cell cell;
 
     public bool movementSelected = false;
     public bool attackingSelected = false;
     public bool shootSelected = false;
+    public bool shootAbilitySelected = false;
     public bool isSelected = false;
     
     public bool hasBeenShotAt = false;
@@ -37,6 +41,7 @@ public class TacticsAttributes : MonoBehaviour
     GameObject[] enemies; 
     void Start()
     {
+        status = Status.None;
         anim = GetComponent<Animator>();
         players = convert(GameObject.FindGameObjectsWithTag("Player"));
         enemies = GameObject.FindGameObjectsWithTag("Enemy");
@@ -58,10 +63,17 @@ public class TacticsAttributes : MonoBehaviour
         GameObject activeUnit = GameStateManager.activeUnit;
         if (activeUnit && activeUnit.name != gameObject.name && ReturnCurrentCell().isSelectable && !GameStateManager.isAnyoneAttacking && !GameStateManager.isAnyoneMoving)
         {
-            if (activeUnit.GetComponent<TacticsMove>().teamBounceCells.Count <= 0)
+            if (GameStateManager.activeLaunchUnit)
             {
-
-                activeUnit.GetComponent<TacticsMove>().MoveToCell(ReturnCurrentCell(), false);
+                return;
+            }
+            TacticsMove tm = activeUnit.GetComponent<TacticsMove>();
+            if (tm.teamBounceCells.Count <= 0)
+            {
+                tm.MoveToCell(ReturnCurrentCell(), false);
+            } else
+            {
+                tm.DrawBounceLine(cell.transform.position, false);
             }
             //GetComponent<PlayerMove>().MoveToCell(ReturnCurrentCell(), false);
         }
@@ -109,6 +121,15 @@ public class TacticsAttributes : MonoBehaviour
         anim.SetTrigger("takeDamage");
         ShowFloatingDamage(damage);
     }
+
+    public void CheckStatus()
+    {
+        if (status == Status.Burned)
+        {
+            TakeDamage(1);
+            Instantiate(burnDamagePrefab, transform.position + Vector3.up, Quaternion.identity);
+        }
+    }
     
     void ShowFloatingDamage(int damage)
     {
@@ -131,6 +152,90 @@ public class TacticsAttributes : MonoBehaviour
             list.Add(arr[i]);
         }
         return list;
+    }
+
+    public void FaceDirection(Directions dir)
+    {
+        Vector3 target = transform.position;
+        if (dir == Directions.Up)
+        {
+            target += Vector3.forward;
+        }
+        else if (dir == Directions.Down)
+        {
+            target += Vector3.back;
+        }
+        else if (dir == Directions.Right)
+        {
+            target += Vector3.right;
+        }
+        else
+        {
+            target += Vector3.left;
+        }
+        StartCoroutine(TurnTowardsTarget(target));
+    }
+
+    public IEnumerator TurnTowardsTarget(Vector3 target)
+    {
+        Quaternion rotTarget = Quaternion.LookRotation(target - transform.position);
+        rotTarget.x = transform.rotation.x;
+        rotTarget.z = transform.rotation.z;
+        float rotationValue = Mathf.Abs(rotTarget.eulerAngles.y - transform.eulerAngles.y);
+        float turnSpeed = 130;
+        if ((rotationValue >= 270 && rotationValue <= 360) ||
+            rotationValue >= 0 && rotationValue <= 90)
+        {
+            turnSpeed = 90;
+        }
+        bool hasTriggeredAnim = false;
+        bool isFullTurn = false;
+        if (rotationValue > 100 && rotationValue < 260)
+        {
+            isFullTurn = true;
+        }
+        float firstFrameAngle = 500; //number irrelevant as long as its > 360
+        float secondFrameAngle = 500;
+        while (!(transform.eulerAngles.y >= rotTarget.eulerAngles.y - 0.05f && transform.eulerAngles.y <= rotTarget.eulerAngles.y + 0.05f))
+        {
+            transform.rotation = Quaternion.RotateTowards(transform.rotation, rotTarget, Time.deltaTime * turnSpeed);
+            if (!hasTriggeredAnim)
+            {
+                if (firstFrameAngle > 360)
+                {
+                    firstFrameAngle = transform.eulerAngles.y;
+                    continue;
+                } else if (secondFrameAngle > 360)
+                {
+                    secondFrameAngle = transform.eulerAngles.y;
+                    continue;
+                }
+                if (secondFrameAngle > firstFrameAngle)
+                {
+                    if (isFullTurn)
+                    {
+                        anim.SetTrigger("halfTurnRight");
+                    }
+                    else
+                    {
+                        anim.SetTrigger("quarterTurnRight");
+                    }
+                }
+                else
+                {
+                    if (isFullTurn)
+                    {
+                        anim.SetTrigger("halfTurnLeft");
+                    }
+                    else
+                    {
+                        anim.SetTrigger("quarterTurnLeft");
+                    }
+                }
+                hasTriggeredAnim = true;
+            }
+            yield return null;
+        }
     }
 
     public static void FaceTextMeshToCamera(GameObject textMeshObject, Transform textLookTargetTransform)

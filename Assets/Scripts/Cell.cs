@@ -12,6 +12,7 @@ public class Cell : MonoBehaviour
     public int zCoordinate = 0;
     public int yCoordinate;
     public GameObject attachedUnit;
+    public GameObject attachedCover;
 
     [Header("Cell Bools")]
     public bool isWalkable = true; //movement is impossible, lava, deepwater etc NOT OCCUPIED
@@ -22,7 +23,9 @@ public class Cell : MonoBehaviour
     public bool isBlocked;
     public bool isInAttackRange;
     public bool isInShootRange;
+    public bool isInAbilityRange;
     public bool isCovered;
+    public bool isInDamageRange;
     //BFS vars
     [Header("BFS Variables")]
     public List<Cell> adjacencyList;
@@ -31,10 +34,10 @@ public class Cell : MonoBehaviour
     public int distance;
     public bool isFinalDestination;
     public bool inWalkRange;
-    public GameObject cover;
     public GameObject coverPrefab;
 
     [Header("Cell Colors")]
+    public Renderer cellRenderer;
     public Material red;
     public Material green;
     public Material cyan;
@@ -42,6 +45,7 @@ public class Cell : MonoBehaviour
     public Material grey;
     public Material white;
     public Material magenta;
+    public Material navy;
 
     public Cell(int x, int z)
     {
@@ -70,6 +74,7 @@ public class Cell : MonoBehaviour
     {
         ResetBFSVariables();
         SpawnCover();
+        cellRenderer = GetComponent<Renderer>();
     }
     // Update is called once per frame
     void Update()
@@ -90,8 +95,23 @@ public class Cell : MonoBehaviour
                 tm.MoveToCell(this, false);
             } else if (isSelectable) {
                 tm.DrawBounceLine(transform.position, false);
-            }
+            } 
             
+        }
+        if (GameStateManager.activeLaunchUnit)
+        {
+            if (isSelectable)
+            {
+                if (GameStateManager.activeLaunchUnit.GetComponent<LineRenderer>().positionCount == 1)
+                {
+                    GameStateManager.activeLaunchUnit.GetComponent<TacticsMove>()
+                    .DrawBounceLine(transform.position, true);
+                } else
+                {
+                    GameStateManager.activeLaunchUnit.GetComponent<TacticsMove>()
+                    .DrawBounceLine(transform.position, false);
+                }
+            }
         }
     }
 
@@ -109,6 +129,8 @@ public class Cell : MonoBehaviour
         distance = 0;
         isInAttackRange = false;
         isInShootRange = false;
+        isInAbilityRange = false;
+        isInDamageRange = false;
     }
 
     void SpawnCover()
@@ -117,7 +139,8 @@ public class Cell : MonoBehaviour
         {
             GameObject coverFab = Instantiate(coverPrefab, transform.position, Quaternion.identity);
             coverFab.transform.position += new Vector3(0, coverFab.GetComponent<Collider>().bounds.extents.y, 0);
-            cover = coverFab;
+            coverFab.transform.SetParent(transform);
+            attachedCover = coverFab;
         }
     }
 
@@ -170,9 +193,9 @@ public class Cell : MonoBehaviour
         {
             list.Add(GetNeighbor(Directions.Up));
         }
-        if (GetNeighbor(Directions.Up))
+        if (GetNeighbor(Directions.Down))
         {
-            list.Add(GetNeighbor(Directions.Up));
+            list.Add(GetNeighbor(Directions.Down));
         }
         return list;
     }
@@ -221,44 +244,66 @@ public class Cell : MonoBehaviour
     {
         if (isCurrent)
         {
-            GetComponent<Renderer>().enabled = true;
-            GetComponent<Renderer>().material = magenta;
+            cellRenderer.enabled = true;
+            cellRenderer.material = magenta;
         }
         else if (isTarget || isFinalDestination)
         {
-            GetComponent<Renderer>().enabled = true;
+            cellRenderer.enabled = true;
             GetComponent<Renderer>().material = green;
         }
         else if (isSelectable)
         {
-            GetComponent<Renderer>().enabled = true;
-            GetComponent<Renderer>().material = red;
+            cellRenderer.enabled = true;
+            cellRenderer.material = red;
         }
         else if (isBlocked)
         {
-            GetComponent<Renderer>().enabled = true;
-            GetComponent<Renderer>().material = grey;
+            cellRenderer.enabled = true;
+            cellRenderer.material = grey;
         }
-        else if(isInAttackRange)
+        else if (isInAttackRange)
         {
             if (attachedUnit)
             {
-                GetComponent<Renderer>().enabled = true;
-                GetComponent<Renderer>().material = yellow;
+                cellRenderer.enabled = true;
+                cellRenderer.material = yellow;
             } else
             {
                 isInAttackRange = false;
-                GetComponent<Renderer>().enabled = false;
+                cellRenderer.enabled = false;
             }
         }
         else if (isInShootRange)
         {
-            GetComponent<Renderer>().enabled = true;
-            GetComponent<Renderer>().material = cyan;
+            cellRenderer.enabled = true;
+            if (isInAbilityRange)
+            {
+                cellRenderer.material = navy;
+            } else
+            {
+                cellRenderer.material = cyan;
+            }
+        }
+        else if (isInAbilityRange)
+        {
+            if (isInDamageRange)
+            {
+                cellRenderer.material = red;
+                cellRenderer.enabled = true;
+            } else
+            {
+                cellRenderer.material = navy;
+                cellRenderer.enabled = true;
+            }
+        } else if (isInDamageRange)
+        {
+            cellRenderer.material = red;
+            cellRenderer.enabled = true;
         }
         else
         {
-            GetComponent<Renderer>().enabled = false;
+            cellRenderer.enabled = false;
         }
     }
 
@@ -369,9 +414,4 @@ public class Cell : MonoBehaviour
         }
         return false;
     }
-}
-
-public enum Directions
-{
-    Left, Right, Up, Down
 }

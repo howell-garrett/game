@@ -94,6 +94,7 @@ public class TacticsMove : MonoBehaviour
         {
             availableMoveSpots = attributes.actionPoints;
         }
+        int lowestY = 100;
         while (process.Count > 0)
         {
             Cell c = process.Dequeue();
@@ -122,7 +123,8 @@ public class TacticsMove : MonoBehaviour
                     {
                         if (!cell.visited)
                         {
-                            if (cell.yCoordinate <= attributes.yPositionCurrent)
+                            if (c.yCoordinate < lowestY) { lowestY = c.yCoordinate; }
+                            if ((cell.yCoordinate <= lowestY || attributes.canClimb))
                             {
                                 if (cell.attachedUnit != null)
                                 {
@@ -157,12 +159,10 @@ public class TacticsMove : MonoBehaviour
                 }
             } else
             {
-               // Debug.Log(11111);
                 if (c.distance < moveDistance)
                 {
                     foreach (Cell cell in c.adjacencyList)
                     {
-
                         if (!cell.visited)
                         {
                             if (cell.attachedUnit != null)
@@ -213,7 +213,6 @@ public class TacticsMove : MonoBehaviour
         {
             //DrawBounceLine(finalDestination.transform.position, true);
         }
-        pathRenderer.enabled = true;
         if (startMoving)
         {
             if (teamBounceCells.Count > 0)
@@ -230,9 +229,30 @@ public class TacticsMove : MonoBehaviour
             finalDesinationTarget.y += finalDestination.GetComponent<Collider>().bounds.extents.y;
             return;
         }
-        pathRenderer.positionCount = path.Count;
-        pathRenderer.SetPositions(CellsToPositions(path));
-        movementCostUI.text = "Cost: " + (pathRenderer.positionCount - 1);
+        DrawPath();
+    }
+
+    void DrawPath()
+    {
+        List<Vector3> points = new List<Vector3>();
+        pathRenderer.enabled = true;
+        Vector3[] currentPoints = CellsToPositions(path);
+        Vector3 previousPoint = currentPoints[0];
+        points.Add(previousPoint);
+        for (int i = 1; i < currentPoints.Length; i++)
+        {
+            if (Mathf.Abs(previousPoint.y - currentPoints[i].y) <= .1f)
+            {
+                points.Add(currentPoints[i]);
+            } else
+            {
+                points.AddRange(BezierCurveLineRenderer.GetCurvePoints(previousPoint, currentPoints[i], 5));
+            }
+            previousPoint = currentPoints[i];
+        }
+        pathRenderer.positionCount = points.Count;
+        pathRenderer.SetPositions(points.ToArray());
+        movementCostUI.text = "Cost: " + (path.Count - 1);
     }
 
     Vector3[] CellsToPositions(Stack<Cell> stack)
@@ -252,9 +272,10 @@ public class TacticsMove : MonoBehaviour
 
     bool bounceHasTriggered = false;
     Cell lastInPath = null;
+    float time = 0;
     public void Move()
     {
-        
+        float duration = 0.5f;
         if (path.Count > 0)
         {
             Cell c = path.Peek();
@@ -319,6 +340,7 @@ public class TacticsMove : MonoBehaviour
             }
             else
             {
+                time = 0;
                 attributes.RemoveSelectableCells();
                 finalDestination.attachedUnit = transform.gameObject;
                 attributes.xPositionCurrent = finalDestination.xCoordinate;
@@ -333,31 +355,55 @@ public class TacticsMove : MonoBehaviour
                 isMoving = false;
                 GameStateManager.isAnyoneMoving = false;
                 hasMoved = true;
-                animator.SetBool("isWalking", false);
                 GameStateManager.DeselectAllUnits();
+                animator.SetBool("isWalking", false);
             }
             
         }
     }
+    Queue<Vector3> bouncePosns = new Queue<Vector3>();
     void Bounce(Vector3 target)
     {
         Vector3 c = new Vector3(target.x, transform.position.y, target.z);
         transform.LookAt(c);
-        bounceTimeCounter += Time.deltaTime;
+        if (bouncePosns.Count == 0) 
+        {
+            bouncePosns = new Queue<Vector3>();
+            List<Vector3> bezPoints = BezierCurveLineRenderer.GetCurvePoints(transform.position, target, 5);
+            foreach (Vector3 vec in bezPoints)
+            {
+                bouncePosns.Enqueue(vec);
+            }
+        }
+        transform.position = Vector3.MoveTowards(transform.position, bouncePosns.Peek(), Time.deltaTime * jumpVelocity);
+        if (Vector3.Distance(bouncePosns.Peek(), transform.position) <= .05)
+        {
+            bouncePosns.Dequeue();
+        }
 
-        bounceTimeCounter = bounceTimeCounter % bounceTime;
-        transform.position = MathParabola.Parabola(
-            transform.position, target, bounceHeight, bounceTimeCounter / bounceTime);
     }
 
-    public void DrawBounceLine(Vector3 posn, bool addPoint)
+    public void DrawBounceLine(Vector3 destination, bool addPoints)
     {
-       
-        if (addPoint)
+        List<Vector3> points = BezierCurveLineRenderer.GetCurvePoints(pathRenderer.GetPosition(pathRenderer.positionCount - 1), destination, 5);
+        if (addPoints)
         {
-            pathRenderer.positionCount = pathRenderer.positionCount + 1;
+            
+            for (int i = 0; i < points.Count; i++)
+            {
+                pathRenderer.positionCount++;
+                pathRenderer.SetPosition(pathRenderer.positionCount - 1, points[i]);
+            }
+        } else
+        {
+            int offset = pathRenderer.positionCount - points.Count;
+            points = BezierCurveLineRenderer.GetCurvePoints(pathRenderer.GetPosition(offset - 1), destination, 5);
+            for (int i = 0; i < points.Count; i++)
+            {
+                pathRenderer.SetPosition(offset + i, points[i]);
+            }
         }
-        pathRenderer.SetPosition(pathRenderer.positionCount - 1, posn); 
+
 
     }
 

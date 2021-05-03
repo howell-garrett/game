@@ -790,6 +790,7 @@ GameObject:
   - component: {fileID: 854108537584542049}
   - component: {fileID: 8882138498213394881}
   - component: {fileID: -2927670624304102840}
+  - component: {fileID: 7485509647031967336}
   m_Layer: 0
   m_Name: Jammo_Enemy
   m_TagString: Enemy
@@ -897,6 +898,8 @@ MonoBehaviour:
   attackRange: 1
   currentCell: {fileID: 0}
   health: 10
+  status: 0
+  burnDamagePrefab: {fileID: 115116, guid: 402cfc0892ef54047b74d53d5a560238, type: 3}
   actionPointsReset: 0
   healthReset: 0
   selectableCells: []
@@ -906,10 +909,12 @@ MonoBehaviour:
   zPositionCurrent: 4
   yPositionCurrent: 0
   maximumTeamBounces: 0
+  canClimb: 0
   cell: {fileID: 0}
   movementSelected: 0
   attackingSelected: 0
   shootSelected: 0
+  shootAbilitySelected: 0
   isSelected: 0
   hasBeenShotAt: 0
 --- !u!114 &2951598012177965450
@@ -927,6 +932,7 @@ MonoBehaviour:
   shotCount: {fileID: 1625293378416550653}
   actionPointCount: {fileID: 491900096}
   movementCostUI: {fileID: 4475374912322500894}
+  usingShootAbility: 0
 --- !u!114 &923240685514737361
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1000,7 +1006,7 @@ BoxCollider:
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Size: {x: 1, y: 1.6, z: 1}
+  m_Size: {x: 0.67, y: 1.6, z: 0.35}
   m_Center: {x: 0, y: 0.85, z: 0}
 --- !u!114 &7531054183332590634
 MonoBehaviour:
@@ -1062,7 +1068,8 @@ MonoBehaviour:
   shootRange: 5
   target: {fileID: 0}
   projectilePrefab: {fileID: 1390951589290470709, guid: 329ca55c6e4b62c438ccbf021e2f1b09, type: 3}
-  impactPrefab: {fileID: 1161387918750820, guid: 354a5321132adc64ea182ed454d28ad2, type: 3}
+  bigProjectilePrefab: {fileID: 0}
+  impactPrefab: {fileID: 0}
   damage: 3
   shotCost: 2
 --- !u!120 &-2927670624304102840
@@ -1161,6 +1168,22 @@ LineRenderer:
     generateLightingData: 0
   m_UseWorldSpace: 1
   m_Loop: 0
+--- !u!54 &7485509647031967336
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 854681559321670515}
+  serializedVersion: 2
+  m_Mass: 1
+  m_Drag: 0
+  m_AngularDrag: 0.05
+  m_UseGravity: 1
+  m_IsKinematic: 1
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
 --- !u!1 &857309687516284694
 GameObject:
   m_ObjectHideFlags: 0
@@ -1783,7 +1806,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 2951598012177965450}
         m_TargetAssemblyTypeName: PlayerUI, Assembly-CSharp
-        m_MethodName: selectMovement
+        m_MethodName: SelectMovement
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -2025,7 +2048,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 2951598012177965450}
         m_TargetAssemblyTypeName: PlayerUI, Assembly-CSharp
-        m_MethodName: selectShoot
+        m_MethodName: SelectShoot
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -3241,7 +3264,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 2951598012177965450}
         m_TargetAssemblyTypeName: PlayerUI, Assembly-CSharp
-        m_MethodName: selectAttack
+        m_MethodName: SelectAttack
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}

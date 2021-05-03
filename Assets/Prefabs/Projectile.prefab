@@ -131,3 +131,15 @@ MonoBehaviour:
   velocity: {x: 0, y: 0, z: 0}
   heading: {x: 0, y: 0, z: 0}
   impactPrefab: {fileID: 1161387918750820, guid: 354a5321132adc64ea182ed454d28ad2, type: 3}
+  possibleStatusEffect: 0
+  statusEffectChance: 0
+  speed: 6
+  hitOffset: 0
+  UseFirePointRotation: 0
+  rotationOffset: {x: 0, y: 0, z: 0}
+  hit: {fileID: 1845764070681338, guid: ac2312a3e32471549882f1a6da5568e6, type: 3}
+  flash: {fileID: 1023540632372170, guid: 12c5a36b60a39734f80150bc3e23e850, type: 3}
+  Detached: []
+  isBouncePorjectile: 0
+  bounceHeight: 0
+  hitDistance: 0

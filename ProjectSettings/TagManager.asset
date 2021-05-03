@@ -11,6 +11,9 @@ TagManager:
   - PlayerEyes
   - TurnText
   - ShotCount
+  - Grid
+  - Environment
+  - Cover
   layers:
   - Default
   - TransparentFX

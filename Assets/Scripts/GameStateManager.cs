@@ -13,6 +13,7 @@ public class GameStateManager : MonoBehaviour
     public static bool isAnyoneAttacking = false;
     public static bool isAnyoneSelected = false;
     public static GameObject activeUnit;
+    public static GameObject activeLaunchUnit;
     public GameObject[] players;
     public GameObject[] enemies;
     // Start is called before the first frame update
@@ -26,6 +27,7 @@ public class GameStateManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        ListenForDeselectTeamJump();
         if (Input.GetKeyDown(KeyCode.R))
         {
             ResetBoard();
@@ -34,11 +36,10 @@ public class GameStateManager : MonoBehaviour
         {
             DeselectAllUnits();
         }
-        if (!isAnyoneMoving || !isAnyoneAttacking)
+        if (!isAnyoneMoving && !isAnyoneAttacking)
         {
             SelectUnit();
         }
-
     }
 
     public static void DeselectAllCells()
@@ -48,6 +49,16 @@ public class GameStateManager : MonoBehaviour
             c.ResetBFSVariables();
         }
     }
+
+    public static void ComputeAdjList()
+    {
+        Cell[] cells = GameStateManager.FindAllCells();
+        foreach (Cell c in cells)
+        {
+            c.FindNeighbors(0);
+        }
+    }
+
     public static void ResetCellInfoWithoutParent()
     {
         foreach (Cell c in GameStateManager.FindAllCells())
@@ -57,16 +68,37 @@ public class GameStateManager : MonoBehaviour
             c.distance = 0;
         }
     }
+    public static void ResetCellBools()
+    {
+        foreach (Cell c in GameStateManager.FindAllCells())
+        {
+            c.isSelectable = false;
+            c.isInShootRange = false;
+            c.isInAttackRange = false;
+            c.isInAbilityRange = false;
+            c.isCurrent = false;
+            c.isTarget = false;
+        }
+    }
 
     public static void DeselectAllUnits()
     {
+        if (activeUnit)
+        {
+            activeUnit.GetComponent<BoxCollider>().enabled = true;
+        }
         isAnyoneSelected = false;
         activeUnit = null;
+        activeLaunchUnit = null;
         GameObject[] playerUnits = GameObject.FindGameObjectsWithTag("Player");
         for (int i = 0; i < playerUnits.Length; i++)
         {
             playerUnits[i].GetComponent<PlayerMove>().Deselect();
             playerUnits[i].GetComponent<TacticsAttributes>().Deselect();
+            if (playerUnits[i].GetComponent<AbilityAttributes>() != null)
+            {
+                playerUnits[i].GetComponent<AbilityAttributes>().Deselect();
+            }
             
         }
 
@@ -90,10 +122,30 @@ public class GameStateManager : MonoBehaviour
         List<Cell> neighbors = c.GetAllNeighbors();
         foreach (Cell item in neighbors)
         {
-            if (item.cover)
+            if (item.attachedCover)
             {
-                item.cover.layer = layer;
+                item.attachedCover.layer = layer;
             }
+        }
+    }
+
+    public static Directions GetOppositeDirection(Directions d)
+    {
+        if (d == Directions.Up)
+        {
+            return Directions.Down;
+        }
+        else if (d == Directions.Down)
+        {
+            return Directions.Up;
+        }
+        else if (d == Directions.Left)
+        {
+            return Directions.Right;
+        }
+        else
+        {
+            return Directions.Left;
         }
     }
 
@@ -139,11 +191,78 @@ public class GameStateManager : MonoBehaviour
         return cells;
     }
 
+    public static void SwapUnitTriggerColliders(bool isTrigger)
+    {
+        GameObject[] playerArr = GameObject.FindGameObjectsWithTag("Player");
+        GameObject[] enemyArr = GameObject.FindGameObjectsWithTag("Enemy");
+        for (int i = 0; i < enemyArr.Length; i++) {
+            enemyArr[i].GetComponent<BoxCollider>().isTrigger = isTrigger;
+        }
+        for (int i = 0; i < playerArr.Length; i++)
+        {
+            playerArr[i].GetComponent<BoxCollider>().isTrigger = isTrigger;
+        }
+    }
+
     public static void SwapUnitLayer(int layer, List<GameObject> units)
     {
         for (int i = 0; i< units.Count; i++)
 		{
             units[i].layer = layer;
+        }
+    }
+
+    public static void Select(TacticsAttributes unit)
+    {
+        DeselectAllUnits();
+        isAnyoneSelected = true;
+        activeUnit = unit.gameObject;
+        unit.isSelected = true;
+        unit.gameObject.GetComponent<BoxCollider>().enabled = false;
+    }
+
+    void ListenForDeselectTeamJump()
+    {
+        if (Input.GetKeyUp(KeyCode.Escape))
+        {
+            if (!isAnyoneMoving && activeUnit && activeUnit.GetComponent<TacticsAttributes>().movementSelected)
+            {
+                TacticsMove tm = activeUnit.GetComponent<TacticsMove>();
+                if (tm.teamBounceCells.Count > 0)
+                {
+                    tm.teamBounceCells.RemoveAt(tm.teamBounceCells.Count - 1);
+                    Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+                    RaycastHit hit;
+                    if (Physics.Raycast(ray, out hit))
+                    {
+                        if (hit.collider.tag == "Cell")
+                        {
+                            Cell c = hit.collider.GetComponent<Cell>();
+                            LineRenderer lr = activeUnit.GetComponent<LineRenderer>();
+                            lr.positionCount = lr.positionCount - 13;
+                            if (tm.teamBounceCells.Count > 0)
+                            {
+                                lr.positionCount = lr.positionCount - 13;
+                                ResetCellInfoWithoutParent();
+                                tm.FindSelectableCells(tm.teamBounceCells[tm.teamBounceCells.Count - 1]);
+                                lr.positionCount += 13;
+                                if (c.isSelectable)
+                                {
+                                    tm.DrawBounceLine(c.transform.position, false);
+                                }
+                            } else
+                            {
+                                ResetCellInfoWithoutParent();
+                                tm.FindSelectableCells(activeUnit.GetComponent<TacticsAttributes>().cell);
+                                if (c.isSelectable)
+                                {
+                                    tm.MoveToCell(c, false);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -161,10 +280,7 @@ public class GameStateManager : MonoBehaviour
                     TacticsAttributes player = hit.collider.GetComponent<TacticsAttributes>();
                     if (player.actionPoints > 0 && !player.ReturnCurrentCell().isSelectable)
                     {
-                        DeselectAllUnits();
-                        isAnyoneSelected = true;
-                        activeUnit = player.gameObject;
-                        player.isSelected = true;
+                        Select(player);
                     }
                 }
                 else if (hit.collider.tag == "Enemy" && !TurnManager.isPlayerTurn && !isAnyoneSelected)
@@ -172,10 +288,7 @@ public class GameStateManager : MonoBehaviour
                     TacticsAttributes player = hit.collider.GetComponent<TacticsAttributes>();
                     if (player.actionPoints > 0 && !player.ReturnCurrentCell().isSelectable)
                     {
-                        DeselectAllUnits();
-                        isAnyoneSelected = true;
-                        activeUnit = player.gameObject;
-                        player.isSelected = true;
+                        Select(player);
                     }
                 }
                 else if (hit.collider.tag == "Cell")
