@@ -103,7 +103,6 @@ public class TacticsShoot : MonoBehaviour
             GetComponent<AbilityAttributes>().PerformShoot(c, howManyShots, isBigShot);
             return;
         }
-        print("subuwu");
         StartCoroutine(ShootCoroutine(this, c, howManyShots, isBigShot));
     }
 
