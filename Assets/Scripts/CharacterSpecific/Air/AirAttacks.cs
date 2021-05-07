@@ -22,6 +22,7 @@ public class AirAttacks : MonoBehaviour, AbilityAttributes
     public GameObject airShotPrefab;
     public int standardShotRange;
     public int standardShotCost;
+    public int standardShotDamage;
     public Transform castPoint;
     //for every push
     float pushSpeed;
@@ -131,6 +132,7 @@ public class AirAttacks : MonoBehaviour, AbilityAttributes
         {
             GameObject projectile = Instantiate(airShotPrefab, castPoint.position, Quaternion.identity);
             projectile.GetComponent<ProjectileAttributes>().SetProjectileTarget(target.attachedUnit, attributes.cell);
+            projectile.GetComponent<ProjectileAttributes>().damage = standardShotDamage;
             yield return new WaitForSeconds(.1f);
         }
     }

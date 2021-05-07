@@ -110,6 +110,7 @@ public class GameStateManager : MonoBehaviour
             enemyUnits[i].GetComponent<Highlighter>().constant = false;
         }
         DeselectAllCells();
+        TurnManager.MonitorTurnStatus();
     }
 
     public static void ChangeNeighboringCoverLayer(Cell c, bool raycastWillHit)

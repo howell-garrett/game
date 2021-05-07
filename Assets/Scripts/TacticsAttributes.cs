@@ -118,11 +118,25 @@ public class TacticsAttributes : MonoBehaviour
     public void TakeDamage(int damage, bool doAnim)
     {
         health -= damage;
-        if (doAnim)
+        if (health <= 0 && doAnim)
+        {
+            KillUnit(doAnim);
+        }
+        else if (doAnim)
         {
             anim.SetTrigger("takeDamage");
         }
         ShowFloatingDamage(damage);
+    }
+
+    void KillUnit(bool doAnim)
+    {
+        if (doAnim)
+        {
+            anim.SetTrigger("Die");
+        }
+        Destroy(gameObject, 2);
+        TurnManager.UpdateUnitCount();
     }
 
     public void CheckStatus()

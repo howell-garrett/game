@@ -227,6 +227,8 @@ public class TacticsMove : MonoBehaviour
             attributes.currentCell.attachedUnit = null;
             attributes.DecrementActionPoints(path.Count - 1);
             animator.SetBool("isWalking", true);
+            pathRenderer.enabled = false;
+            GameStateManager.ResetCellBools();
             GameStateManager.isAnyoneMoving = true;
             isMoving = true;
             c.isTarget = true;
@@ -353,7 +355,6 @@ public class TacticsMove : MonoBehaviour
                 attributes.yPositionCurrent = finalDestination.yCoordinate;
                 attributes.cell = finalDestination;
                 bounceTimeCounter = 0;
-                pathRenderer.enabled = false;
                 bounceHasTriggered = false;
                 teamBounceCells.Clear();
                 finalDestination = null;

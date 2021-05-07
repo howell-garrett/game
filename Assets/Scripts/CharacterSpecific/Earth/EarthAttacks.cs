@@ -33,8 +33,10 @@ public class EarthAttacks : MonoBehaviour, AbilityAttributes
     public GameObject shotPrefab;
     public int standardShotRange;
     public int standardShotCost;
+    public int standardShotDamage;
     public int bigShotRange;
     public int bigShotCost;
+    public int bigShotDamage;
     public GameObject dustPrefabLarge;
     [Range(0, 1)]
     public float scaleModifier;
@@ -280,6 +282,7 @@ public class EarthAttacks : MonoBehaviour, AbilityAttributes
             GameObject projectile = Instantiate(shotPrefab, spawnPoint.position, Quaternion.identity);
             Destroy(Instantiate(dustPrefabLarge, spawnPoint.position, Quaternion.identity), 2f);
             projectile.GetComponent<ProjectileAttributes>().SetProjectileTarget(target, attributes.cell);
+            projectile.GetComponent<ProjectileAttributes>().damage = standardShotDamage;
             rock.transform.localScale -= new Vector3(1f/shotCount * scaleModifier, 1f / shotCount * scaleModifier, 1f / shotCount * scaleModifier);
             yield return new WaitForSeconds(0.1f);
         }
@@ -295,6 +298,7 @@ public class EarthAttacks : MonoBehaviour, AbilityAttributes
         attributes.DecrementActionPoints(bigShotCost);
         GameObject rock = Instantiate(rockPrefab, transform.position + Vector3.down / 1.5f + (transform.forward / 2), Quaternion.identity);
         ProjectileAttributes rockProjectile = rock.GetComponent<ProjectileAttributes>();
+        rockProjectile.damage = bigShotDamage;
         rockProjectile.enabled = false;
         rock.transform.localScale = new Vector3(scaleModifier, scaleModifier, scaleModifier);
         rock.transform.LookAt(new Vector3(target.transform.position.x, rock.transform.position.y, target.transform.position.z));
