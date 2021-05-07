@@ -15,10 +15,10 @@ GameObject:
   - component: {fileID: 54488790111006576}
   - component: {fileID: 135219337407746228}
   - component: {fileID: 108919900232066054}
-  - component: {fileID: 2502323028699733360}
+  - component: {fileID: 8232528594258025299}
   m_Layer: 0
   m_Name: Projectile 7
-  m_TagString: Projectile
+  m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -4831,7 +4831,6 @@ ParticleSystemRenderer:
   m_RendererPriority: 0
   m_Materials:
   - {fileID: 2100000, guid: 45de8f4006edc6948b033431b5a29e56, type: 2}
-  - {fileID: 0}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -4921,10 +4920,10 @@ SphereCollider:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1254724754748870}
   m_Material: {fileID: 0}
-  m_IsTrigger: 1
+  m_IsTrigger: 0
   m_Enabled: 0
   serializedVersion: 2
-  m_Radius: 0.05
+  m_Radius: 0.02
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!108 &108919900232066054
 Light:
@@ -4987,7 +4986,7 @@ Light:
   m_UseBoundingSphereOverride: 0
   m_ShadowRadius: 0
   m_ShadowAngle: 0
---- !u!114 &2502323028699733360
+--- !u!114 &8232528594258025299
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -5001,20 +5000,22 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   willMiss: 0
   target: {fileID: 0}
-  damage: 3
+  damage: 0
   velocity: {x: 0, y: 0, z: 0}
   heading: {x: 0, y: 0, z: 0}
   impactPrefab: {fileID: 0}
   possibleStatusEffect: 0
   statusEffectChance: 0
   speed: 8
-  hitOffset: 0
+  hitOffset: 0.1
   UseFirePointRotation: 0
   rotationOffset: {x: 0, y: 0, z: 0}
   hit: {fileID: 1845764070681338, guid: ac2312a3e32471549882f1a6da5568e6, type: 3}
   flash: {fileID: 1023540632372170, guid: 12c5a36b60a39734f80150bc3e23e850, type: 3}
   Detached: []
   isBouncePorjectile: 0
+  bounceHeight: 0
+  hitDistance: 0
 --- !u!1 &1800544799133088
 GameObject:
   m_ObjectHideFlags: 0
@@ -9791,7 +9792,6 @@ ParticleSystemRenderer:
   m_RendererPriority: 0
   m_Materials:
   - {fileID: 2100000, guid: 9aaa13d175bcf1c4b8acc4d930ee06ee, type: 2}
-  - {fileID: 0}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -14606,7 +14606,6 @@ ParticleSystemRenderer:
   m_RendererPriority: 0
   m_Materials:
   - {fileID: 2100000, guid: 13652c21ac9e0c0419a23ddb06f683fc, type: 2}
-  - {fileID: 0}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0

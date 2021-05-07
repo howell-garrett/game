@@ -9,6 +9,7 @@ public class CollisionListenerAir : MonoBehaviour
     public Cell destination;
     private void OnTriggerEnter(Collider other)
     {
+        GetComponent<TacticsAttributes>().TakeDamage(0, false);
         if (other.gameObject.CompareTag("Environment"))
         {
             stopMoving = true;
@@ -21,6 +22,7 @@ public class CollisionListenerAir : MonoBehaviour
             destination = other.transform.parent.GetComponent<Cell>().GetNeighbor(GameStateManager.GetOppositeDirection(direction));
         } else if (other.gameObject.GetComponent<TacticsAttributes>())
         {
+            other.gameObject.GetComponent<TacticsAttributes>().TakeDamage(0, true);
             stopMoving = true;
             destination = other.transform.GetComponent<TacticsAttributes>().cell.GetNeighbor(GameStateManager.GetOppositeDirection(direction));
         } 

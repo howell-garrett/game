@@ -20,6 +20,8 @@ public class AirAttacks : MonoBehaviour, AbilityAttributes
 
     [Header("Standard Shot")]
     public GameObject airShotPrefab;
+    public int standardShotRange;
+    public int standardShotCost;
     public Transform castPoint;
     //for every push
     float pushSpeed;
@@ -63,6 +65,27 @@ public class AirAttacks : MonoBehaviour, AbilityAttributes
         destinationCell = null;
     }
 
+    public int GetStandardShotRange()
+    {
+        return standardShotRange;
+    }
+
+    public int GetStandardShotCost()
+    {
+        return standardShotCost;
+    }
+
+    public int GetBigShotRange()
+    {
+        return 0;
+    }
+
+    public int GetBigShotCost()
+    {
+        return 0;
+    }
+
+
     public void DecrementAbilityCooldowns()
     {
         //throw new System.NotImplementedException();
@@ -95,18 +118,19 @@ public class AirAttacks : MonoBehaviour, AbilityAttributes
 
     public void PerformShoot(Cell c, int howManyShots, bool isBigShot)
     {
-        StartCoroutine(ShootCorountine(c, howManyShots, isBigShot));
+        StartCoroutine(ShootCorountine(c, howManyShots, isBigShot, standardShotCost));
     }
 
-    IEnumerator ShootCorountine (Cell target, int howManyShots, bool isBigShot)
+    IEnumerator ShootCorountine (Cell target, int howManyShots, bool isBigShot, int shotCost)
     {
         yield return attributes.TurnTowardsTarget(target.transform.position);
         attributes.anim.SetTrigger("Attack");
         yield return new WaitForSeconds(.7f);
+        attributes.DecrementActionPoints(howManyShots * shotCost);
         for (int i = 0; i < howManyShots; i++)
         {
             GameObject projectile = Instantiate(airShotPrefab, castPoint.position, Quaternion.identity);
-            projectile.GetComponent<ProjectileAttributes>().target = target.attachedUnit.transform;
+            projectile.GetComponent<ProjectileAttributes>().SetProjectileTarget(target.attachedUnit, attributes.cell);
             yield return new WaitForSeconds(.1f);
         }
     }
@@ -116,13 +140,13 @@ public class AirAttacks : MonoBehaviour, AbilityAttributes
         Destroy(Instantiate(tornadoPrefab, tornadoTarget.transform.position, Quaternion.identity), 5);
         TacticsAttributes targetAttributes = tornadoTarget.GetComponent<TacticsAttributes>();
         yield return new WaitForSeconds(0.1f);
-        targetAttributes.TakeDamage(tornadoDamage);
+        targetAttributes.TakeDamage(tornadoDamage, true);
         yield return new WaitForSeconds(0.25f);
         foreach (Cell c in targetAttributes.cell.GetAllNeighbors())
         {
             if (c.yCoordinate == targetAttributes.cell.yCoordinate && c.attachedUnit && c != attributes.cell)
             {
-                c.attachedUnit.GetComponent<TacticsAttributes>().TakeDamage(tornadoEdgeDamage);
+                c.attachedUnit.GetComponent<TacticsAttributes>().TakeDamage(tornadoEdgeDamage, true);
             }
         }
         yield return new WaitForSeconds(2);
@@ -131,8 +155,10 @@ public class AirAttacks : MonoBehaviour, AbilityAttributes
 
     public void ShowAirTornadoRange()
     {
+        GetComponent<PlayerUI>().HideAddtionals();
+        Deselect();
         isListeningForAirTornado = true;
-        GameStateManager.ResetCellBools();
+        GameStateManager.DeselectAllCells();
         GameStateManager.ComputeAdjList();
         Queue<Cell> process = new Queue<Cell>();
         process.Enqueue(attributes.cell);
@@ -147,10 +173,8 @@ public class AirAttacks : MonoBehaviour, AbilityAttributes
             attributes.selectableCells.Add(c);
             if (c.distance < tornadoRange)
             {
-                print("c dist < range");
                 foreach (Cell cell in c.adjacencyList)
                 {
-                    print("foreach cell in adj list");
                     if (!cell.visited)
                     {
                         cell.parent = c;
@@ -165,6 +189,7 @@ public class AirAttacks : MonoBehaviour, AbilityAttributes
 
     public void ShowDirection(string dir)
     {
+        Deselect();
         hasTurned.Clear();
         GameStateManager.ResetCellBools();
         if (dir == "up") {
@@ -181,6 +206,7 @@ public class AirAttacks : MonoBehaviour, AbilityAttributes
         }
         attributes.FaceDirection(pushDirection);
 
+        Cell previous;
         Queue<Cell> q = new Queue<Cell>();
         if (attributes.cell.GetNeighbor(pushDirection))
         {
@@ -225,13 +251,20 @@ public class AirAttacks : MonoBehaviour, AbilityAttributes
                     if (!neighbor.isCovered)
                     {
                         q.Enqueue(q.Peek().GetNeighbor(pushDirection));
+                    } else
+                    {
+                        q.Peek().isInAbilityRange = false;
                     }
+                } else
+                {
+                    q.Peek().isInAbilityRange = false;
                 }
                 if (neighbor.yCoordinate == attributes.cell.yCoordinate)
                 {
-                    q.Peek().GetNeighbor(pushDirection).isInAbilityRange = true;
+                    neighbor.isInAbilityRange = true;
                 }
             }
+            previous = q.Peek(); ;
             q.Dequeue();
         }
 
@@ -243,10 +276,8 @@ public class AirAttacks : MonoBehaviour, AbilityAttributes
                 unitsBlown.Add(cell.attachedUnit);
             }
         }
-        uwu = unitsBlown;
         isListeningForAirPush = true;
     }
-    List<GameObject> uwu;
 
     void PerformAirAttack(GameObject unit)
     {
@@ -340,7 +371,12 @@ public class AirAttacks : MonoBehaviour, AbilityAttributes
         for (int i = 0; i < airPushDistance; i++)
         {
             if (previous.GetNeighbor(pushDirection) && previous.GetNeighbor(pushDirection).yCoordinate >= previous.yCoordinate) {
-                vecs.Enqueue(previous.GetNeighbor(pushDirection).transform.position);
+                Vector3 final = previous.GetNeighbor(pushDirection).transform.position;
+                if (previous.GetNeighbor(pushDirection).yCoordinate > previous.yCoordinate)
+                {
+                    final = new Vector3(final.x, transform.position.y, final.z);
+                }
+                vecs.Enqueue(final);
                 previous = previous.GetNeighbor(pushDirection);
                 destinationCell = previous;
             } else if (previous.GetNeighbor(pushDirection) && previous.GetNeighbor(pushDirection).yCoordinate < previous.yCoordinate)
@@ -399,7 +435,7 @@ public class AirAttacks : MonoBehaviour, AbilityAttributes
         RaycastHit hit;
         if (Physics.Raycast(ray, out hit) && !EventSystem.current.IsPointerOverGameObject())
         {
-            if (hit.collider.GetComponent<TacticsAttributes>() && hit.collider.tag != tag)
+            if (hit.collider.GetComponent<TacticsAttributes>())
             {
                 Cell c = hit.collider.GetComponent<TacticsAttributes>().cell;
                 TacticsAttributes ta = hit.collider.GetComponent<TacticsAttributes>();

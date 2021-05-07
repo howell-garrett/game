@@ -62,6 +62,11 @@ public class TacticsMove : MonoBehaviour
         return null;
     }
 
+    public void SetPath(Stack<Cell> cells)
+    {
+        path = cells;
+    }
+
     public void ComputeAdjList()
     {
         Cell[] cells = GameStateManager.FindAllCells();
@@ -220,7 +225,7 @@ public class TacticsMove : MonoBehaviour
                 teamBounceCells.RemoveAt(0);
             }
             attributes.currentCell.attachedUnit = null;
-            attributes.actionPoints -= path.Count - 1;
+            attributes.DecrementActionPoints(path.Count - 1);
             animator.SetBool("isWalking", true);
             GameStateManager.isAnyoneMoving = true;
             isMoving = true;
@@ -273,9 +278,9 @@ public class TacticsMove : MonoBehaviour
     bool bounceHasTriggered = false;
     Cell lastInPath = null;
     float time = 0;
+
     public void Move()
     {
-        float duration = 0.5f;
         if (path.Count > 0)
         {
             Cell c = path.Peek();

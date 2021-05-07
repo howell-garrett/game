@@ -31,6 +31,10 @@ public class EarthAttacks : MonoBehaviour, AbilityAttributes
     //public int damage;
     public GameObject rockPrefab;
     public GameObject shotPrefab;
+    public int standardShotRange;
+    public int standardShotCost;
+    public int bigShotRange;
+    public int bigShotCost;
     public GameObject dustPrefabLarge;
     [Range(0, 1)]
     public float scaleModifier;
@@ -53,6 +57,27 @@ public class EarthAttacks : MonoBehaviour, AbilityAttributes
             ListenForTeammateLaunch();
         }
     }
+
+    public int GetStandardShotRange()
+    {
+        return standardShotRange;
+    }
+
+    public int GetStandardShotCost()
+    {
+        return standardShotCost;
+    }
+
+    public int GetBigShotRange()
+    {
+        return bigShotRange;
+    }
+
+    public int GetBigShotCost()
+    {
+        return bigShotCost;
+    }
+
 
     public void DecrementAbilityCooldowns()
     {
@@ -150,7 +175,7 @@ public class EarthAttacks : MonoBehaviour, AbilityAttributes
             if (cell.attachedUnit)
             {
                 cell.attachedUnit.transform.SetParent(parent.transform);
-                cell.attachedUnit.GetComponent<TacticsAttributes>().TakeDamage(earthquakeDamage);
+                cell.attachedUnit.GetComponent<TacticsAttributes>().TakeDamage(earthquakeDamage, true);
             }
 
             GameObject dust = Instantiate(dustPrefab, cell.transform.position, Quaternion.identity);
@@ -209,12 +234,22 @@ public class EarthAttacks : MonoBehaviour, AbilityAttributes
 
     public void SmallShoot(GameObject target, int howManyShots)
     {
+        if (standardShotCost*howManyShots > attributes.actionPoints)
+        {
+            print("Not Enough AP");
+            return;
+        }
         GameStateManager.isAnyoneAttacking = true;
         StartCoroutine(SmallShootCoroutine(target, howManyShots));
     }
 
     public void BigShot(GameObject target)
     {
+        if (bigShotCost > attributes.actionPoints)
+        {
+            print("Not Enough AP");
+            return;
+        }
         GameStateManager.isAnyoneAttacking = true;
         StartCoroutine(BigShootCoroutine(target));
     }
@@ -222,7 +257,7 @@ public class EarthAttacks : MonoBehaviour, AbilityAttributes
     public IEnumerator SmallShootCoroutine(GameObject target, int shotCount)
     {
         yield return attributes.TurnTowardsTarget(target.transform.position);
-
+        attributes.DecrementActionPoints(shotCount * standardShotCost);
         GameObject rock = Instantiate(rockPrefab, transform.position + Vector3.down/1.5f + (transform.forward/2), Quaternion.identity);
         rock.transform.localScale = new Vector3(scaleModifier, scaleModifier, scaleModifier);
         rock.transform.LookAt(new Vector3(target.transform.position.x, rock.transform.position.y, target.transform.position.z));
@@ -244,7 +279,7 @@ public class EarthAttacks : MonoBehaviour, AbilityAttributes
         {
             GameObject projectile = Instantiate(shotPrefab, spawnPoint.position, Quaternion.identity);
             Destroy(Instantiate(dustPrefabLarge, spawnPoint.position, Quaternion.identity), 2f);
-            projectile.GetComponent<ProjectileAttributes>().target = target.transform;
+            projectile.GetComponent<ProjectileAttributes>().SetProjectileTarget(target, attributes.cell);
             rock.transform.localScale -= new Vector3(1f/shotCount * scaleModifier, 1f / shotCount * scaleModifier, 1f / shotCount * scaleModifier);
             yield return new WaitForSeconds(0.1f);
         }
@@ -257,7 +292,7 @@ public class EarthAttacks : MonoBehaviour, AbilityAttributes
     {
 
         yield return attributes.TurnTowardsTarget(target.transform.position);
-
+        attributes.DecrementActionPoints(bigShotCost);
         GameObject rock = Instantiate(rockPrefab, transform.position + Vector3.down / 1.5f + (transform.forward / 2), Quaternion.identity);
         ProjectileAttributes rockProjectile = rock.GetComponent<ProjectileAttributes>();
         rockProjectile.enabled = false;
@@ -276,7 +311,7 @@ public class EarthAttacks : MonoBehaviour, AbilityAttributes
             rock.transform.position = Vector3.Lerp(rock.transform.position, rockTarget, Time.deltaTime * 2);
             yield return null;
         }
-        rockProjectile.target = target.transform;
+        rockProjectile.GetComponent<ProjectileAttributes>().SetProjectileTarget(target, attributes.cell);
         rockProjectile.bounceHeight = 2.5f;
         rockProjectile.hitDistance = 0.5f;
         rockProjectile.enabled = true;

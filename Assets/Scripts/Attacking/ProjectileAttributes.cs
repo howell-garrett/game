@@ -54,7 +54,6 @@ public class ProjectileAttributes : MonoBehaviour
                     bouncePosns.Dequeue();
                 }
             }
-            
         }
         else
         {
@@ -68,7 +67,7 @@ public class ProjectileAttributes : MonoBehaviour
             }
             if (targetTA)
             {
-                targetTA.TakeDamage(damage);
+                targetTA.TakeDamage(damage, true);
                 if (possibleStatusEffect != Status.None && targetTA.status == Status.None)
                 {
                     if (Random.Range(0f, 1f) < statusEffectChance)
@@ -136,5 +135,18 @@ public class ProjectileAttributes : MonoBehaviour
     void SetHorizontalVelocity()
     {
         velocity = heading * speed;
+    }
+
+    public void SetProjectileTarget(GameObject enemyTarget, Cell currentCell)
+    {
+        if (!enemyTarget.GetComponent<TacticsAttributes>().ReturnCurrentCell().isSafeWhenShot(currentCell)) //if enemy is not behind cover
+        {
+            target = enemyTarget.transform;
+        }
+        else
+        {
+            Cell coverCell = enemyTarget.GetComponent<TacticsAttributes>().ReturnCurrentCell().GetCoverCell(currentCell);
+            target = coverCell.transform;
+        }
     }
 }

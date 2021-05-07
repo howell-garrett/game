@@ -9608,7 +9608,7 @@ MonoBehaviour:
   hit: {fileID: 120778, guid: 632339e29e2ddd64aab6f9dd68facc82, type: 3}
   flash: {fileID: 0}
   Detached: []
-  isBouncePorjectile: 1
+  isBouncePorjectile: 0
   bounceHeight: 0
   hitDistance: 0
 --- !u!1 &1814402051787720

@@ -15,6 +15,7 @@ GameObject:
   - component: {fileID: 199247809506806486}
   - component: {fileID: 135973237189795014}
   - component: {fileID: 108345981927406580}
+  - component: {fileID: 1822237731975246589}
   m_Layer: 0
   m_Name: Projectile 14
   m_TagString: Untagged
@@ -30,7 +31,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1428542714614976}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.31, y: 1, z: -1.395}
+  m_LocalPosition: {x: 0, y: 1, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 4106492466525796}
@@ -4821,7 +4822,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1428542714614976}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 605a456cfc02f6b499a64717539a27e8, type: 3}
   m_Name: 
@@ -4846,10 +4847,10 @@ Rigidbody:
   m_Drag: 0
   m_AngularDrag: 0
   m_UseGravity: 0
-  m_IsKinematic: 0
+  m_IsKinematic: 1
   m_Interpolate: 0
   m_Constraints: 0
-  m_CollisionDetection: 1
+  m_CollisionDetection: 3
 --- !u!199 &199247809506806486
 ParticleSystemRenderer:
   serializedVersion: 6
@@ -4871,6 +4872,7 @@ ParticleSystemRenderer:
   m_RendererPriority: 0
   m_Materials:
   - {fileID: 0}
+  - {fileID: 2100000, guid: 2d797bf69a09aa84fa0eea32fbf3b7d0, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -4990,6 +4992,36 @@ Light:
   m_UseBoundingSphereOverride: 0
   m_ShadowRadius: 0
   m_ShadowAngle: 0
+--- !u!114 &1822237731975246589
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1428542714614976}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7ce05c69001f075449a453b0fb8b2df0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  willMiss: 0
+  target: {fileID: 0}
+  damage: 0
+  velocity: {x: 0, y: 0, z: 0}
+  heading: {x: 0, y: 0, z: 0}
+  impactPrefab: {fileID: 0}
+  possibleStatusEffect: 0
+  statusEffectChance: 0
+  speed: 25
+  hitOffset: 0.1
+  UseFirePointRotation: 0
+  rotationOffset: {x: 0, y: 0, z: 0}
+  hit: {fileID: 1834516428328612, guid: f39c43985f1039b47b3065f46848760e, type: 3}
+  flash: {fileID: 1757226974508410, guid: 244f87a37ba29b741848d41f7591bc93, type: 3}
+  Detached: []
+  isBouncePorjectile: 0
+  bounceHeight: 0
+  hitDistance: 0
 --- !u!1 &1847786199651890
 GameObject:
   m_ObjectHideFlags: 0

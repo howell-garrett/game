@@ -115,10 +115,13 @@ public class TacticsAttributes : MonoBehaviour
         selectableCells.Clear();
     }
 
-    public void TakeDamage(int damage)
+    public void TakeDamage(int damage, bool doAnim)
     {
         health -= damage;
-        anim.SetTrigger("takeDamage");
+        if (doAnim)
+        {
+            anim.SetTrigger("takeDamage");
+        }
         ShowFloatingDamage(damage);
     }
 
@@ -126,7 +129,7 @@ public class TacticsAttributes : MonoBehaviour
     {
         if (status == Status.Burned)
         {
-            TakeDamage(1);
+            TakeDamage(1, true);
             Instantiate(burnDamagePrefab, transform.position + Vector3.up, Quaternion.identity);
         }
     }
@@ -136,6 +139,11 @@ public class TacticsAttributes : MonoBehaviour
         GameObject num = Instantiate(damageNumbers, transform.position + (Vector3.up), Quaternion.identity, transform);
         FaceTextMeshToCamera(num, Camera.main.transform);
         num.GetComponent<TextMesh>().text = damage.ToString();
+    }
+
+    public void DecrementActionPoints(int count)
+    {
+        actionPoints -= count;
     }
 
     private void OnMouseExit()
