@@ -30,6 +30,7 @@ public class Cell : MonoBehaviour
     [Header("BFS Variables")]
     public List<Cell> adjacencyList;
     public bool visited;
+    public bool beingUsed;
     public Cell parent;
     public int distance;
     public bool isFinalDestination;

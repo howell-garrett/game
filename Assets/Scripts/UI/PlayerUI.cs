@@ -10,6 +10,9 @@ public class PlayerUI : MonoBehaviour
     TacticsMove pm;
     TacticsAttack pa;
     TacticsShoot ps;
+    int bigShotRange;
+    int standardShotRange;
+    int range;
     TacticsAttributes attributes;
     public GameObject shotCount;
     InputField shotCountInputField;
@@ -37,6 +40,15 @@ public class PlayerUI : MonoBehaviour
         usingShootAbility = false;
         attributes = GetComponent<TacticsAttributes>();
         UpdateActionPointsDisplay(attributes.actionPoints);
+        if (GetComponent<AbilityAttributes>() != null)
+        {
+            standardShotRange = GetComponent<AbilityAttributes>().GetStandardShotRange();
+            bigShotRange = GetComponent<AbilityAttributes>().GetBigShotRange();
+        }  else
+        {
+            standardShotRange = 10;
+            bigShotRange = 10;
+        }
     }
 
     int count = 0;
@@ -100,7 +112,9 @@ public class PlayerUI : MonoBehaviour
         }
         else
         {
+            HideUI();
             pm.Move();
+            
         }
     }
 
@@ -112,7 +126,7 @@ public class PlayerUI : MonoBehaviour
             if (!ps.checkedSelectableCells && !usingShootAbility)
             {
                 attributes.GetCurrentCell();
-                ps.FindSelectableCells(attributes.currentCell, false);
+                ps.FindSelectableCells(attributes.currentCell, false, range);
                 ps.checkedSelectableCells = true;
             }
         }
@@ -147,11 +161,13 @@ public class PlayerUI : MonoBehaviour
 
     public void SelectShoot()
     {
+        range = standardShotRange;
         ResetCheckedSelectable(false, false, true);
         shotCount.SetActive(true);
     }
     public void SelectBigShoot()
     {
+        range = bigShotRange;
         ResetCheckedSelectable(false, false, true);
     }
 
@@ -239,6 +255,9 @@ public class PlayerUI : MonoBehaviour
         shotCount.SetActive(false);
         movementCostUI.gameObject.SetActive(false);
         usingShootAbility = false;
+        GameStateManager.activeUnit.GetComponent<TacticsAttributes>().movementSelected = false;
+        GameStateManager.activeUnit.GetComponent<TacticsAttributes>().attackingSelected = false;
+        GameStateManager.DeselectAllCells();
     }
 
     void CheckMouse()
@@ -284,11 +303,6 @@ public class PlayerUI : MonoBehaviour
                         else if (shotCountInputField.gameObject.activeSelf)
                         {
                             int howManyShots = Int32.Parse(shotCountInputField.text);
-                            if (howManyShots * ps.shotCost > attributes.actionPoints)
-                            {
-                                Debug.Log("not enough AP");
-                                return;
-                            }
                             if (howManyShots == 0)
                             {
                                 return;

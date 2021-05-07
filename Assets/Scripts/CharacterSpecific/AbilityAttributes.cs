@@ -8,4 +8,8 @@ public interface AbilityAttributes
     void PerformShoot(Cell c,int howManyShots, bool isBigShot);
     void PerformTeammateAbility(GameObject g);
     void Deselect();
+    int GetStandardShotRange();
+    int GetStandardShotCost();
+    int GetBigShotRange();
+    int GetBigShotCost();
 }

@@ -25,7 +25,7 @@ public class ProjectileCollisionBehavior : MonoBehaviour
 
         if (other.GetComponent<TacticsAttributes>())
         {
-            other.GetComponent<TacticsAttributes>().TakeDamage(projectileDamage);
+            other.GetComponent<TacticsAttributes>().TakeDamage(projectileDamage, true);
         }
     }
 }

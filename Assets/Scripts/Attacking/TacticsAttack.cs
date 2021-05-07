@@ -31,7 +31,7 @@ public class TacticsAttack : MonoBehaviour
 
     public void Attack(TacticsAttributes targetAttributes)
     {
-        targetAttributes.TakeDamage(attackPower);
+        targetAttributes.TakeDamage(attackPower, true);
         attributes.actionPoints--;
         GameStateManager.DeselectAllUnits();
         Instantiate(attack, targetAttributes.transform.position, targetAttributes.transform.rotation);

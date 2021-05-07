@@ -23,11 +23,11 @@ public class TacticsShoot : MonoBehaviour
         attributes = GetComponent<TacticsAttributes>();
     }
 
-    public void FindSelectableCells(Cell cellParam, bool usingShootAbility)
+    public void FindSelectableCells(Cell cellParam, bool usingShootAbility, int range)
     {
         GameStateManager.ResetCellBools();
         GameStateManager.ComputeAdjList();
-        int fireRange = shootRange;
+        int fireRange = range;
         if (usingShootAbility)
         {
             fireRange = GetComponent<AbilityAttributes>().GetShootAbilityRange();
@@ -99,7 +99,6 @@ public class TacticsShoot : MonoBehaviour
         //Dynamic Dispatch wasn't working pain
         if (GetComponent<AbilityAttributes>() is AbilityAttributes)
         {
-            //GetComponent<EarthAttacks>().PerformShoot(c, howManyShots, isBigShot);
             GetComponent<AbilityAttributes>().PerformShoot(c, howManyShots, isBigShot);
             return;
         }
@@ -109,13 +108,23 @@ public class TacticsShoot : MonoBehaviour
     IEnumerator ShootCoroutine(TacticsShoot ps, Cell c, int howManyShots, bool isBigShot)
     {
         int count = 0;
+        if (GetComponent<AbilityAttributes>() != null)
+        {
+            AbilityAttributes aa = GetComponent<AbilityAttributes>();
+            if (isBigShot)
+            {
+                shotCost = aa.GetBigShotCost();
+            } else
+            {
+                shotCost = aa.GetStandardShotCost();
+            }
+        }
         while (count < howManyShots)
         {
 
             ps.SetUpShot(c.attachedUnit, isBigShot);
             count++;
             yield return new WaitForSeconds(.1f);
-            //timer = 0;
         }
     }
 
@@ -125,7 +134,7 @@ public class TacticsShoot : MonoBehaviour
         isShooting = true;
         GameStateManager.isAnyoneAttacking = true;
         attributes.anim.SetTrigger("Attack");
-        attributes.actionPoints -= shotCost;
+        attributes.DecrementActionPoints(shotCost);
     }
     public bool HasLineOfSight(Cell target)
     {

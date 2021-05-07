@@ -16,10 +16,6 @@ public class EnemyMove : TacticsMove
     // Update is called once per frame
     void Update()
     {
-        if (attributes.health <= 0)
-        {
-            gameObject.SetActive(false);
-        }
         if (Grid.gameBoard != null && !hasInitialized)
         {
             Init();

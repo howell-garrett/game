@@ -12,8 +12,7 @@ public class TurnManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        enemyUnits = GameObject.FindGameObjectsWithTag("Enemy");
-        playerUnits = GameObject.FindGameObjectsWithTag("Player");
+        UpdateUnitCount();
 }
 
     // Update is called once per frame
@@ -27,19 +26,12 @@ public class TurnManager : MonoBehaviour
         {
             NewEnemyTurn();
         }
-        if (isPlayerTurn)
-        {
-            monitorTurnStatus("Player");
-        } else
-        {
-            monitorTurnStatus("Enemy");
-        }
     }
 
-    void monitorTurnStatus(string whoToMonitor)
+    public static void MonitorTurnStatus()
     {
         bool allGone = true;
-        if (whoToMonitor == "Enemy")
+        if (!isPlayerTurn)
         {
             for (int i = 0; i < enemyUnits.Length; i++)
             {
@@ -68,6 +60,11 @@ public class TurnManager : MonoBehaviour
         }
     }
 
+    public static void UpdateUnitCount()
+    {
+        enemyUnits = GameObject.FindGameObjectsWithTag("Enemy");
+        playerUnits = GameObject.FindGameObjectsWithTag("Player");
+    }
 
     public static void NewPlayerTurn()
     {
