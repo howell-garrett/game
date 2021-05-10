@@ -268,7 +268,7 @@ public class TacticsMove : MonoBehaviour
         Vector3[] temp = new Vector3[stack.Count];
 
         int count = 0;
-        Vector3 yOffset = new Vector3(0, .1f, 0);
+        Vector3 yOffset = new Vector3(0, .2f, 0);
         foreach (Cell item in cells)
         {
             temp[count] = item.transform.position + yOffset;

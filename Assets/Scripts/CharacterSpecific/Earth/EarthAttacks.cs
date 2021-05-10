@@ -259,6 +259,12 @@ public class EarthAttacks : MonoBehaviour, AbilityAttributes
     public IEnumerator SmallShootCoroutine(GameObject target, int shotCount)
     {
         yield return attributes.TurnTowardsTarget(target.transform.position);
+        Directions stepDir = attributes.GetSideStepDirection(target.GetComponent<TacticsAttributes>().cell);
+        if (stepDir != Directions.Up) //up means no step
+        {
+            yield return attributes.SideStep(stepDir);
+            yield return new WaitForSeconds(1f);
+        }
         attributes.DecrementActionPoints(shotCount * standardShotCost);
         GameObject rock = Instantiate(rockPrefab, transform.position + Vector3.down/1.5f + (transform.forward/2), Quaternion.identity);
         rock.transform.localScale = new Vector3(scaleModifier, scaleModifier, scaleModifier);
@@ -288,6 +294,10 @@ public class EarthAttacks : MonoBehaviour, AbilityAttributes
         }
         yield return new WaitForSeconds(0.5f);
         Destroy(rock);
+        if (stepDir != Directions.Up) //up means no step
+        {
+            yield return attributes.SideStep(GameStateManager.GetOppositeDirection(stepDir));
+        }
         GameStateManager.isAnyoneAttacking = false;
     }
 
@@ -295,6 +305,12 @@ public class EarthAttacks : MonoBehaviour, AbilityAttributes
     {
 
         yield return attributes.TurnTowardsTarget(target.transform.position);
+        Directions stepDir = attributes.GetSideStepDirection(target.GetComponent<TacticsAttributes>().cell);
+        if (stepDir != Directions.Up) //up means no step
+        {
+            yield return attributes.SideStep(stepDir);
+            yield return new WaitForSeconds(1f);
+        }
         attributes.DecrementActionPoints(bigShotCost);
         GameObject rock = Instantiate(rockPrefab, transform.position + Vector3.down / 1.5f + (transform.forward / 2), Quaternion.identity);
         ProjectileAttributes rockProjectile = rock.GetComponent<ProjectileAttributes>();
@@ -319,6 +335,10 @@ public class EarthAttacks : MonoBehaviour, AbilityAttributes
         rockProjectile.bounceHeight = 2.5f;
         rockProjectile.hitDistance = 0.5f;
         rockProjectile.enabled = true;
+        if (stepDir != Directions.Up) //up means no step
+        {
+            yield return attributes.SideStep(GameStateManager.GetOppositeDirection(stepDir));
+        }
     }
 
     public void SelectLaunchTeammate()

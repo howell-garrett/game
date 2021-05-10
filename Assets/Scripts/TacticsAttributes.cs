@@ -55,7 +55,14 @@ public class TacticsAttributes : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        if (Input.GetKeyUp(KeyCode.K))
+        {
+            StartCoroutine(SideStep(Directions.Right));
+        }
+        if (Input.GetKeyUp(KeyCode.L))
+        {
+            StartCoroutine(SideStep(Directions.Left));
+        }
     }
 
     private void OnMouseEnter()
@@ -258,6 +265,87 @@ public class TacticsAttributes : MonoBehaviour
             }
             yield return null;
         }
+    }
+
+    public IEnumerator SideStep(Directions dir)
+    {
+        string animValue;
+        Vector3 target;
+        if (dir == Directions.Left)
+        {
+            target = transform.position + -transform.right * .75f;
+            animValue = "StepLeft";
+        } else 
+        {
+            target = transform.position + transform.right * .75f;
+            animValue = "StepRight";
+        } 
+        anim.SetTrigger(animValue);
+        while (Vector3.Distance(transform.position, target) > 0.05)
+        {
+            transform.position = Vector3.MoveTowards(transform.position, target, Time.deltaTime *.6f);
+            yield return null;
+        }
+        yield return new WaitForSeconds(0.3f);
+    }
+
+    public Directions GetSideStepDirection(Cell enemyLocation)
+    {
+        if (enemyLocation.xCoordinate > cell.xCoordinate + 1)
+        {
+            if (cell.GetNeighbor(Directions.Right) && cell.GetNeighbor(Directions.Right).isCovered)
+            {
+                if (enemyLocation.zCoordinate > cell.zCoordinate)
+                {
+                    return Directions.Left;
+                } else
+                {
+                    return Directions.Right;
+                }
+            }
+        }
+        if (enemyLocation.xCoordinate < cell.xCoordinate - 1)
+        {
+            if (cell.GetNeighbor(Directions.Left) && cell.GetNeighbor(Directions.Left).isCovered)
+            {
+                if (enemyLocation.zCoordinate > cell.zCoordinate)
+                {
+                    return Directions.Right;
+                }
+                else
+                {
+                    return Directions.Left;
+                }
+            }
+        }
+        if (enemyLocation.zCoordinate > cell.zCoordinate + 1)
+        {
+            if (cell.GetNeighbor(Directions.Up) && cell.GetNeighbor(Directions.Up).isCovered)
+            {
+                if (enemyLocation.xCoordinate > cell.xCoordinate)
+                {
+                    return Directions.Right;
+                } else
+                {
+                    return Directions.Left;
+                }
+            }
+        }
+        if (enemyLocation.zCoordinate < cell.zCoordinate - 1)
+        {
+            if (cell.GetNeighbor(Directions.Down) && cell.GetNeighbor(Directions.Down).isCovered)
+            {
+                if (enemyLocation.xCoordinate > cell.xCoordinate)
+                {
+                    return Directions.Left;
+                }
+                else
+                {
+                    return Directions.Right;
+                }
+            }
+        }
+        return Directions.Up; //Don't Turn
     }
 
     public static void FaceTextMeshToCamera(GameObject textMeshObject, Transform textLookTargetTransform)

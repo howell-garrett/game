@@ -125,6 +125,11 @@ public class LightningAttacks : MonoBehaviour, AbilityAttributes
     IEnumerator ShootCorountine(Cell target, int howManyShots, bool isBigShot, int shotCost)
     {
         yield return attributes.TurnTowardsTarget(target.transform.position);
+        Directions stepDir = attributes.GetSideStepDirection(target);
+        if (stepDir != Directions.Up) //up means no step
+        {
+            yield return attributes.SideStep(stepDir);
+        }
         attributes.anim.SetTrigger("Attack");
         GameObject shotToFire = lightningShotPrefab;
         int shotDamage = standardShotDamage;
@@ -141,6 +146,10 @@ public class LightningAttacks : MonoBehaviour, AbilityAttributes
             projectile.GetComponent<ProjectileAttributes>().SetProjectileTarget(target.attachedUnit, attributes.cell);
             projectile.GetComponent<ProjectileAttributes>().damage = shotDamage;
             yield return new WaitForSeconds(.1f);
+        }
+        if (stepDir != Directions.Up) //up means no step
+        {
+            yield return attributes.SideStep(GameStateManager.GetOppositeDirection(stepDir));
         }
     }
 

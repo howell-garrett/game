@@ -125,6 +125,11 @@ public class AirAttacks : MonoBehaviour, AbilityAttributes
     IEnumerator ShootCorountine (Cell target, int howManyShots, bool isBigShot, int shotCost)
     {
         yield return attributes.TurnTowardsTarget(target.transform.position);
+        Directions stepDir = attributes.GetSideStepDirection(target);
+        if (stepDir != Directions.Up) //up means no step
+        {
+            yield return attributes.SideStep(stepDir);
+        }
         attributes.anim.SetTrigger("Attack");
         yield return new WaitForSeconds(.7f);
         attributes.DecrementActionPoints(howManyShots * shotCost);
@@ -134,6 +139,10 @@ public class AirAttacks : MonoBehaviour, AbilityAttributes
             projectile.GetComponent<ProjectileAttributes>().SetProjectileTarget(target.attachedUnit, attributes.cell);
             projectile.GetComponent<ProjectileAttributes>().damage = standardShotDamage;
             yield return new WaitForSeconds(.1f);
+        }
+        if (stepDir != Directions.Up) //up means no step
+        {
+            yield return attributes.SideStep(GameStateManager.GetOppositeDirection(stepDir));
         }
     }
 
