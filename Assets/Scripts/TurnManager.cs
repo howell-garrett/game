@@ -68,6 +68,7 @@ public class TurnManager : MonoBehaviour
 
     public static void NewPlayerTurn()
     {
+        GameStateManager.CreatePopupAlert("Player");
         GameObject.FindGameObjectWithTag("TurnText").GetComponent<Text>().text = "Player Turn";
         //Debug.Log(GameStateManager.activeUnit.name);
         // GameStateManager.DeselectAllUnits();
@@ -86,6 +87,7 @@ public class TurnManager : MonoBehaviour
     }
     public static void NewEnemyTurn()
     {
+        GameStateManager.CreatePopupAlert("Enemy");
         GameObject.FindGameObjectWithTag("TurnText").GetComponent<Text>().text = "Enemy Turn";
         isPlayerTurn = false;
         for (int i = 0; i < enemyUnits.Length; i++)

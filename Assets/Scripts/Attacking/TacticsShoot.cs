@@ -181,7 +181,7 @@ public class TacticsShoot : MonoBehaviour
         GameStateManager.ChangeUnitsRaycastLayer(true);
         if (!final)
         {
-            print("no line of sight");
+            GameStateManager.CreatePopupAlert("No line of sight");
         }
         return final;
     }

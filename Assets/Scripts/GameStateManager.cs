@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using HighlightingSystem;
 using UnityEngine.SceneManagement;
@@ -16,12 +17,15 @@ public class GameStateManager : MonoBehaviour
     public static GameObject activeLaunchUnit;
     public GameObject[] players;
     public GameObject[] enemies;
+
+    static GameObject popupPanel;
     // Start is called before the first frame update
     void Start()
     {
         players = GameObject.FindGameObjectsWithTag("Player");
         enemies = GameObject.FindGameObjectsWithTag("Enemy");
-        
+        popupPanel = GameObject.FindGameObjectWithTag("PopupPanel");
+        popupPanel.SetActive(false);
     }
 
     // Update is called once per frame
@@ -128,6 +132,18 @@ public class GameStateManager : MonoBehaviour
                 item.attachedCover.layer = layer;
             }
         }
+    }
+
+    public static void CreatePopupAlert(string message)
+    {
+        if (popupPanel.GetComponent<HideObjectAfterTime>())
+        {
+            Destroy(popupPanel.GetComponent<HideObjectAfterTime>());
+        }
+        popupPanel.SetActive(false); //clear it out first
+        popupPanel.SetActive(true);
+        GameObject.FindGameObjectWithTag("PopupText").GetComponent<Text>().text = message;
+        popupPanel.AddComponent<HideObjectAfterTime>();
     }
 
     public static Directions GetOppositeDirection(Directions d)
