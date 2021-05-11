@@ -55,14 +55,8 @@ public class TacticsAttributes : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKeyUp(KeyCode.K))
-        {
-            StartCoroutine(SideStep(Directions.Right));
-        }
-        if (Input.GetKeyUp(KeyCode.L))
-        {
-            StartCoroutine(SideStep(Directions.Left));
-        }
+        Vector3 dir = (transform.position + Vector3.forward * 3) - transform.position;
+        //Debug.DrawRay(transform.position, dir);
     }
 
     private void OnMouseEnter()
@@ -293,7 +287,7 @@ public class TacticsAttributes : MonoBehaviour
     {
         if (enemyLocation.xCoordinate > cell.xCoordinate + 1)
         {
-            if (cell.GetNeighbor(Directions.Right) && cell.GetNeighbor(Directions.Right).isCovered)
+            if (cell.GetNeighbor(Directions.Right) && (cell.GetNeighbor(Directions.Right).isCovered || cell.GetNeighbor(Directions.Right).yCoordinate > cell.yCoordinate))
             {
                 if (enemyLocation.zCoordinate > cell.zCoordinate)
                 {
@@ -306,7 +300,7 @@ public class TacticsAttributes : MonoBehaviour
         }
         if (enemyLocation.xCoordinate < cell.xCoordinate - 1)
         {
-            if (cell.GetNeighbor(Directions.Left) && cell.GetNeighbor(Directions.Left).isCovered)
+            if (cell.GetNeighbor(Directions.Left) && (cell.GetNeighbor(Directions.Left).isCovered || cell.GetNeighbor(Directions.Left).yCoordinate > cell.yCoordinate))
             {
                 if (enemyLocation.zCoordinate > cell.zCoordinate)
                 {
@@ -320,7 +314,7 @@ public class TacticsAttributes : MonoBehaviour
         }
         if (enemyLocation.zCoordinate > cell.zCoordinate + 1)
         {
-            if (cell.GetNeighbor(Directions.Up) && cell.GetNeighbor(Directions.Up).isCovered)
+            if (cell.GetNeighbor(Directions.Up) && (cell.GetNeighbor(Directions.Up).isCovered || cell.GetNeighbor(Directions.Up).yCoordinate > cell.yCoordinate))
             {
                 if (enemyLocation.xCoordinate > cell.xCoordinate)
                 {
@@ -333,7 +327,7 @@ public class TacticsAttributes : MonoBehaviour
         }
         if (enemyLocation.zCoordinate < cell.zCoordinate - 1)
         {
-            if (cell.GetNeighbor(Directions.Down) && cell.GetNeighbor(Directions.Down).isCovered)
+            if (cell.GetNeighbor(Directions.Down) && (cell.GetNeighbor(Directions.Down).isCovered || cell.GetNeighbor(Directions.Down).yCoordinate > cell.yCoordinate))
             {
                 if (enemyLocation.xCoordinate > cell.xCoordinate)
                 {

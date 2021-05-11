@@ -14,7 +14,7 @@ public class TacticsShoot : MonoBehaviour
     public GameObject impactPrefab;
     public int damage = 150;
     public int shotCost = 2;
-
+    public Material noLineOfSight;
     Vector3 velocity = new Vector3();
     Vector3 heading = new Vector3();
 
@@ -181,9 +181,35 @@ public class TacticsShoot : MonoBehaviour
         GameStateManager.ChangeUnitsRaycastLayer(true);
         if (!final)
         {
-            GameStateManager.CreatePopupAlert("No line of sight");
+            RaycastHit newHit;
+            if (Physics.Raycast(currentVec, targetVec - currentVec, out newHit, Vector3.Distance(currentVec, targetVec)))
+            {
+                StartCoroutine(NoLineOfSightRoutine(currentVec, newHit.point, targetVec));
+            }
         }
         return final;
+    }
+
+    IEnumerator NoLineOfSightRoutine(Vector3 lineStart, Vector3 lineEnd, Vector3 test)
+    {
+        GameStateManager.CreatePopupAlert("No line of sight");
+        LineRenderer line = GetComponent<LineRenderer>();
+        line.positionCount = 2;
+        line.SetPosition(0, lineStart);
+        line.SetPosition(1, lineEnd);
+        float ogStartWidth = line.startWidth;
+        float ogEndWidth = line.endWidth;
+        Material ogMaterial = line.material;
+        
+        line.startWidth = .07f;
+        line.endWidth = .07f;
+        line.enabled = true;
+        line.material = noLineOfSight;
+        yield return new WaitForSeconds(1);
+        line.startWidth = ogStartWidth;
+        line.endWidth = ogEndWidth;
+        line.enabled = false;
+        line.material = ogMaterial;
     }
 
     public void Shoot()

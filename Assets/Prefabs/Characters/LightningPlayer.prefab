@@ -4620,7 +4620,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   jumpHeight: 2
-  moveSpeed: 2
+  moveSpeed: 4
   moveDistance: 8
   jumpVelocity: 4.5
   hasMoved: 0
@@ -4657,8 +4657,8 @@ MonoBehaviour:
   selectableCells: []
   damageNumbers: {fileID: 569081961468117752, guid: be664ee06a067714ab140a69ef25561c, type: 3}
   anim: {fileID: 0}
-  xPositionCurrent: 5
-  zPositionCurrent: 5
+  xPositionCurrent: 8
+  zPositionCurrent: 11
   yPositionCurrent: 0
   maximumTeamBounces: 2
   canClimb: 0
@@ -4691,6 +4691,7 @@ MonoBehaviour:
   impactPrefab: {fileID: 1161387918750820, guid: 354a5321132adc64ea182ed454d28ad2, type: 3}
   damage: 1
   shotCost: 2
+  noLineOfSight: {fileID: 2100000, guid: b8e69cb392f31264fb49b99cbbd4ad63, type: 2}
 --- !u!114 &8447872243504818574
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4911,7 +4912,8 @@ MonoBehaviour:
   attractCost: 6
   attractCooldown: 3
   attractedEnemyMoveSpeed: 1
-  attractEnemiesButton: {fileID: 7535688862681728152}
+  attractEnemiesRangeButton: {fileID: 7535688862681728152}
+  attractEnemiesButton: {fileID: 3078687461769335604}
   attractPrefab: {fileID: 6432804190827252660, guid: 7fea1d8b3962a1b45bb637cce4c30d37, type: 3}
   castPoint: {fileID: 7979660497118784619}
   isListeningForLightningStrike: 0
@@ -4926,9 +4928,11 @@ MonoBehaviour:
   lightningShotPrefab: {fileID: 163948, guid: bd6b2040eb5b69c419cfc5f28a7bbecc, type: 3}
   standardShotRange: 6
   standardShotCost: 2
+  standardShotDamage: 0
   bigShotPrefab: {fileID: 1428542714614976, guid: fa6b2eb4089fc9d4ab0d795b14de9925, type: 3}
   bigShotRange: 8
   bigShotCost: 9
+  bigShotDamage: 0
 --- !u!1 &6210243250797252370
 GameObject:
   m_ObjectHideFlags: 0
@@ -6907,18 +6911,6 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 4615139885938828903}
-        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
-        m_MethodName: SetActive
-        m_Mode: 6
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 1
-        m_CallState: 2
       - m_Target: {fileID: 5537813145845733449}
         m_TargetAssemblyTypeName: LightningAttacks, Assembly-CSharp
         m_MethodName: AttractEnemiesRange

@@ -11,6 +11,7 @@ public class FireAttacks : MonoBehaviour, AbilityAttributes
     int flameWheelCooldownCurrent;
     public int flameWheelCost;
     public GameObject flameWheel;
+    public Button flameWheelRangeButton;
     public Button flameWheelButton;
     [Header("Burn attack variables")]
     public int burnRange;
@@ -41,7 +42,7 @@ public class FireAttacks : MonoBehaviour, AbilityAttributes
             flameWheelCooldownCurrent--;
         } else
         {
-            flameWheelButton.interactable = true;
+            flameWheelRangeButton.interactable = true;
         }
 
         if (burnCooldownCurrent > 0)
@@ -93,6 +94,44 @@ public class FireAttacks : MonoBehaviour, AbilityAttributes
         burnCooldownCurrent = burnCooldown;
     }
 
+    public void ShowFlameWheelRange()
+    {
+        Directions[] dirs = new Directions[] { Directions.Down, Directions.Up, Directions.Left, Directions.Right };
+        foreach (Directions dir in dirs)
+        {
+            Queue<Cell> cells = new Queue<Cell>();
+            cells.Enqueue(attributes.cell);
+            while (cells.Count > 0)
+            {
+                Cell c = cells.Peek();
+                Cell neighbor = c.GetNeighbor(dir);
+                if (neighbor)
+                {
+                    if (neighbor.yCoordinate > attributes.yPositionCurrent)
+                    {
+                        break;
+                    } else if (neighbor.yCoordinate == attributes.yPositionCurrent)
+                    {
+                        if (neighbor.attachedCover || neighbor.attachedUnit) {
+                            neighbor.isInAbilityRange = true;
+                            break;
+                        } else
+                        {
+                            cells.Enqueue(cells.Peek().GetNeighbor(dir));
+                            neighbor.isInAbilityRange = true;
+                        }
+                    } else
+                    {
+                        cells.Enqueue(cells.Peek().GetNeighbor(dir));
+                    }
+
+                }
+                cells.Dequeue();
+            }
+        }
+        flameWheelButton.gameObject.SetActive(true);
+    }
+
     public void PerformFlameWheelAttack()
     {
         StartCoroutine(FlameWheelRoutine());
@@ -100,10 +139,15 @@ public class FireAttacks : MonoBehaviour, AbilityAttributes
 
     public IEnumerator FlameWheelRoutine()
     {
+        GameStateManager.isAnyoneAttacking = true;
+        attributes.anim.SetTrigger("FlameWheel");
+        flameWheelRangeButton.interactable = false;
+        yield return new WaitForSeconds(0.4f);
         Instantiate(flameWheel, transform.position + (Vector3.up * .5f), Quaternion.identity);
         flameWheelCooldownCurrent = flameWheelCooldown;
         yield return new WaitForSeconds(0.1f);
         GameStateManager.DeselectAllUnits();
+        GameStateManager.isAnyoneAttacking = false;
     }
 
     public void PerformShoot(Cell c, int howManyShots, bool isBigShot)
@@ -115,7 +159,7 @@ public class FireAttacks : MonoBehaviour, AbilityAttributes
         }
         if (howManyShots*shotCost > attributes.actionPoints)
         {
-            print("Not enough AP");
+            GameStateManager.CreatePopupAlert("Not Enough AP");
             return;
         }
         StartCoroutine(ShootCorountine(c, howManyShots, isBigShot, shotCost));
@@ -162,6 +206,6 @@ public class FireAttacks : MonoBehaviour, AbilityAttributes
 
     public void Deselect()
     {
-
+        flameWheelButton.gameObject.SetActive(false);
     }
 }

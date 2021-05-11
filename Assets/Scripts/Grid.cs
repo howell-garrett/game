@@ -35,6 +35,7 @@ public class Grid : MonoBehaviour
         foreach (GameObject go in GameObject.FindGameObjectsWithTag("Cell"))
         {
             Cell c = go.GetComponent<Cell>();
+            c.SetLocationToEqualWorldSpace();
             cells.Add(c);
             if (c.zCoordinate > gameBoardHeight)
             {
@@ -46,10 +47,10 @@ public class Grid : MonoBehaviour
                 gameBoardWidth = c.xCoordinate;
             }
         }
-        for (int i = 0; i <= gameBoardHeight; i++)
+        for (int i = 0; i <= gameBoardWidth; i++)
         {
             gameBoard.Add(new List<Cell>());
-            for (int j = 0; j <= gameBoardWidth; j++)
+            for (int j = 0; j <= gameBoardHeight; j++)
             {
                 gameBoard[i].Add(null);
             }

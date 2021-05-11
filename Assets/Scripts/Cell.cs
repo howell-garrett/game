@@ -77,6 +77,14 @@ public class Cell : MonoBehaviour
         SpawnCover();
         cellRenderer = GetComponent<Renderer>();
     }
+
+    public void SetLocationToEqualWorldSpace()
+    {
+        xCoordinate = Mathf.RoundToInt(transform.position.x);
+        yCoordinate = Mathf.RoundToInt(transform.position.y);
+        zCoordinate = Mathf.RoundToInt(transform.position.z);
+    }
+
     // Update is called once per frame
     void Update()
     {

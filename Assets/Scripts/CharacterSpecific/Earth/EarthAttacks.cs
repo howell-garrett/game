@@ -17,6 +17,7 @@ public class EarthAttacks : MonoBehaviour, AbilityAttributes
     public float movementDepth = .4f;
     public GameObject dustPrefab;
     public Button earthquakeButton;
+    public Button earthquakRangeButton;
     [Header("Push Cover")]
     public int pushCoverCooldown;
     public int pushCoverCooldownCurrent;
@@ -85,10 +86,10 @@ public class EarthAttacks : MonoBehaviour, AbilityAttributes
     {
         if (earthquakeCooldownCurrent > 0)
         {
-            earthquakeCooldown--;
+            earthquakeCooldownCurrent--;
         } else
         {
-            earthquakeButton.interactable = true;
+            earthquakRangeButton.interactable = true;
         }
 
         if (pushCoverCooldownCurrent > 0)
@@ -128,7 +129,7 @@ public class EarthAttacks : MonoBehaviour, AbilityAttributes
     {
         GameStateManager.DeselectAllCells();
         GameStateManager.DeselectAllUnits();
-        earthquakeButton.interactable = false;
+        earthquakRangeButton.interactable = false;
         GameStateManager.isAnyoneAttacking = true;
         GameStateManager.DeselectAllCells();
         earthquakeCooldownCurrent = earthquakeCooldown;
@@ -161,6 +162,40 @@ public class EarthAttacks : MonoBehaviour, AbilityAttributes
             foreach (Cell c in cellRing)
             {
                 cells.Add(c);
+            }
+        }
+    }
+
+    public void ShowEarthquakeRange()
+    {
+        GetComponent<PlayerUI>().HideAddtionals();
+        Deselect();
+        GameStateManager.DeselectAllCells();
+        GameStateManager.ComputeAdjList();
+        earthquakeButton.gameObject.SetActive(true);
+        Queue<Cell> process = new Queue<Cell>();
+        process.Enqueue(attributes.cell);
+        if (attributes.cell)
+        {
+            attributes.cell.visited = true;
+        }
+        while (process.Count > 0)
+        {
+            Cell c = process.Dequeue();
+            c.isInAbilityRange = true;
+            attributes.selectableCells.Add(c);
+            if (c.distance < earthquakeRange)
+            {
+                foreach (Cell cell in c.adjacencyList)
+                {
+                    if (!cell.visited)
+                    {
+                        cell.parent = c;
+                        cell.visited = true;
+                        cell.distance = 1 + c.distance;
+                        process.Enqueue(cell);
+                    }
+                }
             }
         }
     }
@@ -238,7 +273,7 @@ public class EarthAttacks : MonoBehaviour, AbilityAttributes
     {
         if (standardShotCost*howManyShots > attributes.actionPoints)
         {
-            print("Not Enough AP");
+            GameStateManager.CreatePopupAlert("Not Enough AP");
             return;
         }
         GameStateManager.isAnyoneAttacking = true;
@@ -249,7 +284,7 @@ public class EarthAttacks : MonoBehaviour, AbilityAttributes
     {
         if (bigShotCost > attributes.actionPoints)
         {
-            print("Not Enough AP");
+            GameStateManager.CreatePopupAlert("Not Enough AP");
             return;
         }
         GameStateManager.isAnyoneAttacking = true;
@@ -499,6 +534,7 @@ public class EarthAttacks : MonoBehaviour, AbilityAttributes
     public void Deselect()
     {
         isListeningForTeammateLaunch = false;
+        earthquakeButton.gameObject.SetActive(false);
     }
 
 }

@@ -14,6 +14,7 @@ public class LightningAttacks : MonoBehaviour, AbilityAttributes
     public int attractCooldown;
     int attractCooldownCurrent;
     public float attractedEnemyMoveSpeed;
+    public Button attractEnemiesRangeButton;
     public Button attractEnemiesButton;
     public GameObject attractPrefab;
     public Transform castPoint;
@@ -86,7 +87,7 @@ public class LightningAttacks : MonoBehaviour, AbilityAttributes
             attractCooldownCurrent--;
         } else
         {
-            attractEnemiesButton.interactable = true;
+            attractEnemiesRangeButton.interactable = true;
         }
         if (lightningStrikeCooldownCurrent > 0)
         {
@@ -100,6 +101,7 @@ public class LightningAttacks : MonoBehaviour, AbilityAttributes
     public void Deselect()
     {
         lightningStrikeEnemy = null;
+        attractEnemiesButton.gameObject.SetActive(false);
     }
 
     public int GetShootAbilityRange()
@@ -116,7 +118,7 @@ public class LightningAttacks : MonoBehaviour, AbilityAttributes
         }
         if (howManyShots * shotCost > attributes.actionPoints)
         {
-            print("Not enough AP");
+            GameStateManager.CreatePopupAlert("Not Enough AP");
             return;
         }
         StartCoroutine(ShootCorountine(c, howManyShots, isBigShot, shotCost));
@@ -158,7 +160,6 @@ public class LightningAttacks : MonoBehaviour, AbilityAttributes
         GetComponent<PlayerUI>().HideAddtionals();
         Deselect();
         isListeningForLightningStrike = true;
-        lightningStrikeCooldownCurrent = lightningStrikeCooldown;
         GameStateManager.DeselectAllCells();
         GameStateManager.ComputeAdjList();
         Queue<Cell> process = new Queue<Cell>();
@@ -223,6 +224,7 @@ public class LightningAttacks : MonoBehaviour, AbilityAttributes
         GameStateManager.isAnyoneAttacking = true;
         GameStateManager.DeselectAllUnits();
         lightningStrikeButton.interactable = false;
+        lightningStrikeCooldownCurrent = lightningStrikeCooldown;
         yield return StartCoroutine(attributes.TurnTowardsTarget(enemy.transform.position));
         attributes.anim.SetTrigger("LightningStrike");
         yield return new WaitForSeconds(0.2f );
@@ -246,6 +248,7 @@ public class LightningAttacks : MonoBehaviour, AbilityAttributes
         GetComponent<PlayerUI>().HideAddtionals();
         GameStateManager.DeselectAllCells();
         GameStateManager.ComputeAdjList();
+        attractEnemiesButton.gameObject.SetActive(true);
         Queue<Cell> process = new Queue<Cell>();
         List<Cell> cellList = new List<Cell>();
         process.Enqueue(attributes.cell);
